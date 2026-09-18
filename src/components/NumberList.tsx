@@ -204,13 +204,6 @@ export function NumberList({ numbers, type, loading, onViewSms }: NumberListProp
               <Globe2 className="h-4 w-4" />
               {t.numbers.filterAll}
             </button>
-            <button
-              type="button"
-              className="flex shrink-0 items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-4 py-2.5 text-sm font-medium text-zinc-300"
-            >
-              {type === "free" ? <Gift className="h-4 w-4 text-emerald-400" /> : <Crown className="h-4 w-4 text-amber-400" />}
-              {type === "free" ? t.nav.freeNumbers : t.nav.paidNumbers}
-            </button>
             {countries.map((country) => (
               <button
                 key={country.country_code}
