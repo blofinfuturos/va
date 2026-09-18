@@ -323,7 +323,7 @@ export const authTranslations: Record<Lang, AuthDict> = {
       plan24hDesc: "Ideal for quick verifications",
       plan7dDesc: "Perfect for extended use",
       plan30dDesc: "Best value for money",
-      buyNow: "Buy now",
+      buyNow: "Get Number",
       confirmPurchase: "Confirm purchase",
       confirmDesc: "You are about to rent this premium number",
       payWithCredits: "Pay with credits",
