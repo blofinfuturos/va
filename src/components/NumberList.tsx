@@ -27,15 +27,6 @@ function NumberCard({ phone, onViewSms, lang }: NumberCardProps) {
       navigate(localizedPath("/dashboard"));
     }
   };
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(phone.number);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
 
   return (
     <div
@@ -78,23 +69,7 @@ function NumberCard({ phone, onViewSms, lang }: NumberCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-2">
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/60 px-3 py-2 text-xs font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-700/60"
-        >
-          {copied ? (
-            <>
-              <Check className="h-3.5 w-3.5 text-emerald-400" />
-              {t.numbers.copied}
-            </>
-          ) : (
-            <>
-              <Copy className="h-3.5 w-3.5" />
-              {t.numbers.copies}
-            </>
-          )}
-        </button>
+      <div className="mt-4 flex w-full items-center justify-center">
         {isPaid ? (
           <button
             onClick={handleBuyClick}
