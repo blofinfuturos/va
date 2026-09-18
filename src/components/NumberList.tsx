@@ -42,20 +42,14 @@ function NumberCard({ phone, onViewSms, lang }: NumberCardProps) {
 
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/80 p-1.5">
-            <PhoneCountryFlag phone={phone} className="h-7 w-5" />
-          </div>
-          <div>
-            <div className="font-mono text-lg font-bold text-white">{phone.number}</div>
-            <div className="mt-0.5 text-sm text-zinc-400">{phone.country_name}</div>
-          </div>
-        </div>
-        {!isPaid && (
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            {t.numbers.active}
-          </div>
-        )}
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/80 p-1.5">
+                      <PhoneCountryFlag phone={phone} className="h-7 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-mono text-lg font-bold text-white">{phone.number}</div>
+                      <div className="mt-0.5 text-sm text-zinc-400">{phone.country_name}</div>
+                    </div>
+                  </div>
       </div>
 
       <div className="mt-4 flex items-center gap-4 text-sm text-zinc-400">

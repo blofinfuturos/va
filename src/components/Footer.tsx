@@ -14,7 +14,7 @@ export function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600">
                 <Smartphone className="h-5 w-5 text-white" />
               </div>
-              <span className="text-base font-bold text-white">SMSVerify</span>
+              <span className="text-base font-bold text-white">GhostSMS</span>
             </Link>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-400">
               {t.footer.desc}
@@ -57,7 +57,7 @@ export function Footer() {
         <div className="mt-10 border-t border-zinc-800/60 pt-6">
           <p className="text-xs text-zinc-500">{t.footer.disclaimer}</p>
           <p className="mt-3 text-sm text-zinc-400">
-            © {new Date().getFullYear()} SMSVerify. {t.footer.rights}
+            © {new Date().getFullYear()} GhostSMS. {t.footer.rights}
           </p>
         </div>
       </div>

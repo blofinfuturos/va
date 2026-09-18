@@ -55,7 +55,7 @@ export function Header() {
             <Smartphone className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="text-base font-bold text-white">SMSVerify</span>
+            <span className="text-base font-bold text-white">GhostSMS</span>
             <span className="text-[10px] font-medium uppercase tracking-wider text-emerald-400">Receive SMS Online</span>
           </div>
         </Link>
