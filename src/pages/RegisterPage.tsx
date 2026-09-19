@@ -60,7 +60,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full max-w-full items-center justify-center overflow-hidden px-4 pt-24 pb-12">
+    <div className="relative flex min-h-screen w-full max-w-full items-center justify-center overflow-hidden px-4 pt-16 sm:pt-20 pb-10">
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute left-1/2 top-20 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-500/8 blur-[120px]" />
       </div>

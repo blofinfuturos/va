@@ -42,7 +42,7 @@ export function FreeNumbersPage() {
   const freeNumbers = numbers.filter((n) => n.type === "free");
 
   return (
-    <div className="w-full max-w-full overflow-hidden pt-20">
+    <div className="w-full max-w-full overflow-hidden pt-16 sm:pt-20">
       <NumberList
         numbers={freeNumbers}
         type="free"
@@ -60,7 +60,7 @@ export function PaidNumbersPage() {
   const paidNumbers = numbers.filter((n) => n.type === "paid");
 
   return (
-    <div className="w-full max-w-full overflow-hidden pt-20">
+    <div className="w-full max-w-full overflow-hidden pt-16 sm:pt-20">
       <NumberList
         numbers={paidNumbers}
         type="paid"

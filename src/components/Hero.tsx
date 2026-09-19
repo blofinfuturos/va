@@ -19,7 +19,7 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative w-full max-w-full overflow-hidden pt-32 pb-10">
+    <section className="relative w-full max-w-full overflow-hidden pt-20 sm:pt-24 pb-6 sm:pb-8">
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[120px]" />
         <div className="absolute right-0 top-40 h-[300px] w-[400px] rounded-full bg-teal-500/10 blur-[100px]" />
@@ -28,7 +28,7 @@ export function Hero() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-sm font-medium text-emerald-300">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-sm font-medium text-emerald-300">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
@@ -43,11 +43,11 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-sm sm:text-base leading-relaxed text-zinc-400">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed text-zinc-400">
             {t.hero.subtitle}
           </p>
 
-          <div className="mx-auto mt-8 grid max-w-xs grid-cols-2 gap-2.5 sm:max-w-xl sm:grid-cols-4 sm:gap-3 md:max-w-2xl">
+          <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-2.5 sm:max-w-xl sm:grid-cols-4 sm:gap-3 md:max-w-2xl">
             {features.map((f, i) => (
               <div
                 key={i}
@@ -60,7 +60,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mx-auto mt-10 sm:mt-12 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
           {stats.map((stat, i) => (
             <div
               key={i}
