@@ -416,13 +416,20 @@ export function AdminPage() {
       if (numberFilter === "paid" && n.type !== "paid") return false;
 
       if (!q) return true;
+      const activeRental = activeRentalsMap.get(n.id);
+      const client = activeRental ? userMap.get(activeRental.user_id) : null;
+      const clientEmail = client?.email?.toLowerCase() || "";
+      const userId = activeRental?.user_id?.toLowerCase() || "";
+
       return (
         n.number.toLowerCase().includes(q) ||
         n.country_name.toLowerCase().includes(q) ||
-        n.country_code.toLowerCase().includes(q)
+        n.country_code.toLowerCase().includes(q) ||
+        clientEmail.includes(q) ||
+        userId.includes(q)
       );
     });
-  }, [numbers, numberSearch, numberFilter, activeRentalsMap]);
+  }, [numbers, numberSearch, numberFilter, activeRentalsMap, userMap]);
 
   const filteredRentals = useMemo(() => {
     const q = rentalSearch.trim().toLowerCase();
@@ -1068,13 +1075,13 @@ export function AdminPage() {
                 ))}
               </div>
 
-              <div className="relative w-full sm:w-72">
+              <div className="relative w-full sm:w-80">
                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
                 <input
                   type="text"
                   value={numberSearch}
                   onChange={(e) => setNumberSearch(e.target.value)}
-                  placeholder="Buscar por número o país..."
+                  placeholder="Buscar por número, país o email de cliente..."
                   className="w-full rounded-xl border border-zinc-800 bg-zinc-900/70 py-2 pl-9 pr-3 text-xs text-white placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none"
                 />
               </div>
@@ -1094,9 +1101,10 @@ export function AdminPage() {
                       <th className="px-4 py-3.5">Número Telefónico</th>
                       <th className="px-4 py-3.5">País</th>
                       <th className="px-4 py-3.5">Tipo</th>
-                      <th className="px-4 py-3.5">Estado de Alquiler / Disponibilidad</th>
-                      <th className="px-4 py-3.5">SMS Recibidos</th>
+                      <th className="px-4 py-3.5 text-zinc-200">Usuario Asignado</th>
+                      <th className="px-4 py-3.5 text-zinc-200">Tiempo Restante</th>
                       <th className="px-4 py-3.5">Operativo</th>
+                      <th className="px-4 py-3.5">SMS</th>
                       <th className="px-4 py-3.5 text-right">Acciones</th>
                     </tr>
                   </thead>
@@ -1109,13 +1117,13 @@ export function AdminPage() {
                       return (
                         <tr key={num.id} className="transition-colors hover:bg-zinc-900/50">
                           {/* Phone number */}
-                          <td className="px-4 py-3.5 font-medium text-white">
+                          <td className="px-4 py-3.5 font-medium text-white whitespace-nowrap">
                             <div className="font-mono text-sm font-bold text-white">{num.number}</div>
                             <div className="text-[11px] text-zinc-500">ID: {num.id.slice(0, 8)}</div>
                           </td>
 
                           {/* Country */}
-                          <td className="px-4 py-3.5">
+                          <td className="px-4 py-3.5 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <CountryFlag countryCode={num.country_code} countryName={num.country_name} className="h-4 w-5" />
                               <span className="text-zinc-200 font-medium">{num.country_name}</span>
@@ -1124,7 +1132,7 @@ export function AdminPage() {
                           </td>
 
                           {/* Type */}
-                          <td className="px-4 py-3.5">
+                          <td className="px-4 py-3.5 whitespace-nowrap">
                             <span
                               className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                                 num.type === "paid"
@@ -1136,38 +1144,102 @@ export function AdminPage() {
                             </span>
                           </td>
 
-                          {/* Rental / Availability Status */}
-                          <td className="px-4 py-3.5">
+                          {/* Usuario asignado */}
+                          <td className="px-4 py-3.5 min-w-[210px]">
                             {activeRental ? (
-                              <div>
-                                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                              <div className="flex items-start gap-2">
+                                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400">
                                   <Crown className="h-3.5 w-3.5" />
-                                  Alquilado por {client?.email || "Cliente"}
                                 </div>
-                                <div className="mt-0.5 text-[11px] text-zinc-400">
-                                  {timing?.text} (hasta {formatDate(activeRental.expires_at)})
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span
+                                      className="truncate font-semibold text-white text-xs max-w-[170px]"
+                                      title={client?.email || activeRental.user_id}
+                                    >
+                                      {client?.email || "Cliente sin email"}
+                                    </span>
+                                    {client?.email && (
+                                      <button
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(client.email);
+                                          showNotification("success", "Email copiado al portapapeles");
+                                        }}
+                                        className="text-zinc-500 hover:text-zinc-200 transition-colors p-0.5"
+                                        title="Copiar email del cliente"
+                                      >
+                                        <Copy className="h-3 w-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                  <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-400">
+                                    <span className="text-emerald-400 font-mono font-medium">{client?.credits ?? 0} cr</span>
+                                    <span className="text-zinc-600">•</span>
+                                    <span className="font-mono text-[10px] text-zinc-500">ID: {activeRental.user_id.slice(0, 8)}</span>
+                                  </div>
                                 </div>
                               </div>
                             ) : num.type === "paid" ? (
-                              <div className="flex items-center gap-1 text-xs font-semibold text-emerald-400">
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                Libre para alquilar
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                  Libre / Sin asignar
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setAssignModalPhone(num);
+                                    setAssignUserId(users[0]?.id || "");
+                                  }}
+                                  className="text-[11px] text-zinc-400 hover:text-amber-400 underline underline-offset-2 transition-colors"
+                                  title="Asignar manualmente a un cliente"
+                                >
+                                  Asignar
+                                </button>
                               </div>
                             ) : (
-                              <div className="text-xs text-zinc-400">Público / Compartido</div>
+                              <span className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 text-xs text-zinc-400">
+                                Público / Compartido
+                              </span>
                             )}
                           </td>
 
-                          {/* SMS Received */}
-                          <td className="px-4 py-3.5">
-                            <span className="font-semibold text-white">{num.received_count || 0} SMS</span>
-                            <div className="text-[11px] text-zinc-500">
-                              {num.last_sms_at ? timeAgo(num.last_sms_at, lang) : "Sin mensajes"}
-                            </div>
+                          {/* Tiempo restante */}
+                          <td className="px-4 py-3.5 min-w-[190px] whitespace-nowrap">
+                            {activeRental ? (
+                              <div>
+                                <div className="inline-flex items-center gap-1.5">
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                                      timing?.isExpiringSoon
+                                        ? "border border-amber-500/30 bg-amber-500/15 text-amber-300 animate-pulse"
+                                        : timing?.isExpired
+                                        ? "border border-zinc-700 bg-zinc-800 text-zinc-400"
+                                        : "border border-emerald-500/30 bg-emerald-500/15 text-emerald-300"
+                                    }`}
+                                  >
+                                    <Clock className="h-3 w-3" />
+                                    {timing?.text}
+                                  </span>
+                                  {timing?.isExpiringSoon && (
+                                    <span className="rounded bg-amber-500/20 px-1 py-0.5 text-[10px] font-bold text-amber-400">
+                                      Vence hoy
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="mt-1 flex items-center gap-1 text-[11px] text-zinc-400">
+                                  <Calendar className="h-3 w-3 text-zinc-500" />
+                                  <span>Hasta {formatDate(activeRental.expires_at)}</span>
+                                </div>
+                              </div>
+                            ) : num.type === "paid" ? (
+                              <span className="text-xs text-zinc-500 italic">Sin alquiler</span>
+                            ) : (
+                              <span className="text-xs text-zinc-500">Ilimitado</span>
+                            )}
                           </td>
 
                           {/* Active / Inactive Toggle */}
-                          <td className="px-4 py-3.5">
+                          <td className="px-4 py-3.5 whitespace-nowrap">
                             <button
                               onClick={() => handleToggleNumberActive(num)}
                               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${
@@ -1175,15 +1247,23 @@ export function AdminPage() {
                                   ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
                                   : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300"
                               }`}
-                              title="Clic para cambiar estado"
+                              title="Clic para pausar o reactivar número"
                             >
                               <span className={`h-1.5 w-1.5 rounded-full ${num.is_active ? "bg-emerald-400" : "bg-zinc-500"}`} />
                               {num.is_active ? "Activo" : "Pausado"}
                             </button>
                           </td>
 
+                          {/* SMS Received */}
+                          <td className="px-4 py-3.5 whitespace-nowrap">
+                            <span className="font-semibold text-white">{num.received_count || 0} SMS</span>
+                            <div className="text-[11px] text-zinc-500">
+                              {num.last_sms_at ? timeAgo(num.last_sms_at, lang) : "Sin mensajes"}
+                            </div>
+                          </td>
+
                           {/* Actions */}
-                          <td className="px-4 py-3.5 text-right">
+                          <td className="px-4 py-3.5 text-right whitespace-nowrap">
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 onClick={() => setSmsModalPhone(num)}
@@ -1192,18 +1272,39 @@ export function AdminPage() {
                               >
                                 SMS
                               </button>
-                              {num.type === "paid" && !activeRental && (
-                                <button
-                                  onClick={() => {
-                                    setAssignModalPhone(num);
-                                    setAssignUserId(users[0]?.id || "");
-                                  }}
-                                  className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-2 py-1 text-xs font-semibold text-amber-300 hover:border-amber-500/40"
-                                  title="Asignar manualmente a un cliente"
-                                >
-                                  Asignar
-                                </button>
+
+                              {activeRental ? (
+                                <>
+                                  <button
+                                    onClick={() => setExtendRentalItem(activeRental)}
+                                    className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/20"
+                                    title="Extender tiempo de alquiler"
+                                  >
+                                    +Tiempo
+                                  </button>
+                                  <button
+                                    onClick={() => handleTerminateRental(activeRental.id)}
+                                    className="rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs font-semibold text-red-300 hover:bg-red-500/20"
+                                    title="Finalizar alquiler y liberar número"
+                                  >
+                                    Liberar
+                                  </button>
+                                </>
+                              ) : (
+                                num.type === "paid" && (
+                                  <button
+                                    onClick={() => {
+                                      setAssignModalPhone(num);
+                                      setAssignUserId(users[0]?.id || "");
+                                    }}
+                                    className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-2 py-1 text-xs font-semibold text-amber-300 hover:border-amber-500/40"
+                                    title="Asignar manualmente a un cliente"
+                                  >
+                                    Asignar
+                                  </button>
+                                )
                               )}
+
                               <button
                                 onClick={() => {
                                   setEditingNumberId(num.id);
@@ -1218,7 +1319,7 @@ export function AdminPage() {
                                   setShowNumberModal(true);
                                 }}
                                 className="rounded-lg border border-zinc-700 bg-zinc-800/80 p-1.5 text-zinc-400 hover:text-emerald-400"
-                                title="Editar datos"
+                                title="Editar datos del número"
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
