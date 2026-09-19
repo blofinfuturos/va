@@ -27,10 +27,10 @@ function ScrollToHash() {
 
 function AppRoutes() {
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950">
+    <div className="flex min-h-screen w-full max-w-full flex-col overflow-x-hidden bg-zinc-950">
       <ScrollToHash />
       <Header />
-      <main className="flex-1">
+      <main className="w-full max-w-full flex-1 overflow-x-hidden">
         <Routes>
           <Route path="/" element={<Navigate to="/es" replace />} />
           <Route path="/:lang" element={<HomePage />} />

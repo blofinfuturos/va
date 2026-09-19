@@ -19,8 +19,8 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative overflow-hidden pt-32 pb-10">
-      <div className="absolute inset-0 -z-10">
+    <section className="relative w-full max-w-full overflow-hidden pt-32 pb-10">
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[120px]" />
         <div className="absolute right-0 top-40 h-[300px] w-[400px] rounded-full bg-teal-500/10 blur-[100px]" />
         <div className="absolute bottom-0 left-0 h-[300px] w-[400px] rounded-full bg-emerald-600/5 blur-[100px]" />

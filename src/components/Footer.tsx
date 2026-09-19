@@ -6,7 +6,7 @@ export function Footer() {
   const { t, localizedPath } = useLang();
 
   return (
-    <footer className="border-t border-zinc-800 bg-zinc-950">
+    <footer className="w-full max-w-full overflow-hidden border-t border-zinc-800 bg-zinc-950">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">

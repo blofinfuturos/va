@@ -14,8 +14,8 @@ export function WhyChooseUs() {
   const { t } = useLang();
 
   return (
-    <section id="why" className="relative scroll-mt-20 py-20">
-      <div className="absolute inset-0 -z-10">
+    <section id="why" className="relative w-full max-w-full overflow-hidden scroll-mt-20 py-20">
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute left-1/4 top-0 h-[400px] w-[400px] rounded-full bg-emerald-500/5 blur-[100px]" />
       </div>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

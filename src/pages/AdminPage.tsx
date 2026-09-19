@@ -192,7 +192,7 @@ export function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden pt-24 pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white sm:text-3xl">{ta.admin.title}</h1>

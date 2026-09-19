@@ -41,15 +41,15 @@ function NumberCard({ phone, onViewSms, lang }: NumberCardProps) {
       )}
 
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/80 p-1.5">
-                      <PhoneCountryFlag phone={phone} className="h-7 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-mono text-lg font-bold text-white">{phone.number}</div>
-                      <div className="mt-0.5 text-sm text-zinc-400">{phone.country_name}</div>
-                    </div>
-                  </div>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/80 p-1.5">
+            <PhoneCountryFlag phone={phone} className="h-7 w-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="truncate font-mono text-lg font-bold text-white">{phone.number}</div>
+            <div className="truncate mt-0.5 text-sm text-zinc-400">{phone.country_name}</div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 flex items-center gap-4 text-sm text-zinc-400">
@@ -126,8 +126,8 @@ export function NumberList({ numbers, type, loading, onViewSms }: NumberListProp
   const subtitle = type === "free" ? t.numbers.freeSubtitle : t.numbers.paidSubtitle;
 
   return (
-    <section className="py-6">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="w-full max-w-full overflow-hidden py-6">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -160,7 +160,7 @@ export function NumberList({ numbers, type, loading, onViewSms }: NumberListProp
             </div>
           </div>
 
-          <div className="mt-6 -mx-1 flex gap-2 overflow-x-auto px-1 pb-2 scrollbar-thin">
+          <div className="mt-6 flex w-full max-w-full gap-2 overflow-x-auto pb-2 scrollbar-thin">
             <button
               type="button"
               onClick={() => setSelectedCountry("all")}

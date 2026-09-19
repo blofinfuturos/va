@@ -181,7 +181,7 @@ export function DashboardPage() {
   const completedPurchases = purchases.filter((p) => p.status === "completed");
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden pt-24 pb-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {feedback && (
           <div
