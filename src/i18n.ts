@@ -76,7 +76,7 @@ type Dict = {
 
 export const translations: Record<Lang, Dict> = {
   es: {
-    nav: { home: "Inicio", freeNumbers: "Números Gratis", paidNumbers: "Números Premium", whyUs: "Por Qué Elegirnos", faq: "Preguntas Frecuentes" },
+    nav: { home: "Inicio", freeNumbers: "Números Gratis", paidNumbers: "Números Premium", whyUs: "Por Qué Elegirnos", faq: "FAQ" },
     hero: {
       badge: "Recibe SMS online al instante",
       title: "Tu número de teléfono virtual para",
