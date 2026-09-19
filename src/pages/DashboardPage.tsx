@@ -6,6 +6,7 @@ import { useLang } from "@/LanguageContext";
 import { supabase } from "@/supabaseClient";
 import { PhoneCountryFlag } from "@/components/CountryFlag";
 import { SmsModal } from "@/components/SmsModal";
+import { CoinPaymentsModal } from "@/components/CoinPaymentsModal";
 import { formatDate, timeAgo } from "@/utils";
 import type { PhoneNumber, SmsMessage } from "@/types";
 
@@ -477,92 +478,29 @@ export function DashboardPage() {
       {/* SMS Modal */}
       <SmsModal phone={selectedPhone} onClose={() => setSelectedPhone(null)} />
 
-      {/* Purchase Modal */}
-      {showPurchaseModal && purchasePhone && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowPurchaseModal(false)}>
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl"
-          >
-            <h3 className="text-xl font-bold text-white">{ta.purchase.title}</h3>
-            <p className="mt-1 text-sm text-zinc-400">{ta.purchase.subtitle}</p>
-
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/80 p-1.5">
-                <PhoneCountryFlag phone={purchasePhone} className="h-7 w-5" />
-              </div>
-              <div>
-                <div className="font-mono text-lg font-bold text-white">{purchasePhone.number}</div>
-                <div className="text-sm text-zinc-400">{purchasePhone.country_name}</div>
-              </div>
-            </div>
-
-            <div className="mt-5 space-y-2">
-              {PLAN_PRICES.map((plan, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedPlan(i)}
-                  className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition-all ${
-                    selectedPlan === i
-                      ? "border-emerald-400 bg-emerald-400/5"
-                      : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                        selectedPlan === i ? "border-emerald-400 bg-emerald-400" : "border-zinc-600"
-                      }`}
-                    >
-                      {selectedPlan === i && <Check className="h-3 w-3 text-zinc-950" />}
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">
-                        {ta.purchase[plan.key as keyof typeof ta.purchase] as string}
-                      </div>
-                      <div className="text-xs text-zinc-500">
-                        {ta.purchase[plan.descKey as keyof typeof ta.purchase] as string}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-emerald-400">{plan.credits}</div>
-                    <div className="text-xs text-zinc-500">{ta.credits.credits}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-              <span className="text-sm text-zinc-400">{ta.purchase.yourCredits}</span>
-              <span className="font-bold text-white">{profile?.credits ?? 0}</span>
-            </div>
-
-            {(profile?.credits ?? 0) < PLAN_PRICES[selectedPlan].credits && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
-                {ta.purchase.insufficientCredits}: {PLAN_PRICES[selectedPlan].credits - (profile?.credits ?? 0)} {ta.credits.credits}
-              </div>
-            )}
-
-            <div className="mt-5 flex gap-3">
-              <button
-                onClick={() => setShowPurchaseModal(false)}
-                className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800/60 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700/60"
-              >
-                {ta.purchase.cancel}
-              </button>
-              <button
-                onClick={handleRentNumber}
-                disabled={processing || (profile?.credits ?? 0) < PLAN_PRICES[selectedPlan].credits}
-                className="flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-2.5 text-sm font-semibold text-white transition-all hover:from-emerald-400 hover:to-teal-500 disabled:opacity-50"
-              >
-                {processing ? "..." : ta.purchase.confirm}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* CoinPayments Checkout Modal */}
+      <CoinPaymentsModal
+        phone={purchasePhone}
+        initialPlanIndex={selectedPlan}
+        isOpen={showPurchaseModal && !!purchasePhone}
+        onClose={() => {
+          setShowPurchaseModal(false);
+          setPurchasePhone(null);
+        }}
+        onSuccess={async () => {
+          await refreshProfile();
+          if (user) {
+            const { data: updatedRentals } = await supabase
+              .from("premium_number_rentals")
+              .select("*, phone_numbers(*)")
+              .eq("user_id", user.id)
+              .order("created_at", { ascending: false });
+            setRentals((updatedRentals as Rental[]) || []);
+          }
+          setShowPurchaseModal(false);
+          setPurchasePhone(null);
+        }}
+      />
     </div>
   );
 }

@@ -54,3 +54,19 @@ export type Purchase = {
 };
 
 export type Lang = "es" | "en" | "fr" | "de" | "it";
+
+export type RentalPlan = {
+  id: string;
+  hours: number;
+  label: string;
+  priceEur: number;
+  credits: number;
+  desc: string;
+  popular?: boolean;
+};
+
+export const RENTAL_PLANS: RentalPlan[] = [
+  { id: "24h", hours: 24, label: "24 Horas", priceEur: 1.49, credits: 5, desc: "Verificaciones rápidas e inmediatas" },
+  { id: "7d", hours: 168, label: "7 Días", priceEur: 6.99, credits: 25, desc: "Recomendado para servicios semanales", popular: true },
+  { id: "30d", hours: 720, label: "30 Días", priceEur: 18.99, credits: 80, desc: "Uso continuo y máxima privacidad" },
+];
