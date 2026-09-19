@@ -118,8 +118,10 @@ export function CoinPaymentsModal({
   onSuccess,
 }: CoinPaymentsModalProps) {
   const { user, profile, refreshProfile } = useAuth();
-  const { localizedPath } = useLang();
+  const { ta, localizedPath } = useLang();
   const navigate = useNavigate();
+
+  const cp = ta.coinpayments;
 
   const [selectedPlanIdx, setSelectedPlanIdx] = useState(initialPlanIndex);
   const [selectedCryptoId, setSelectedCryptoId] = useState("usdt_trc20");
@@ -157,6 +159,13 @@ export function CoinPaymentsModal({
   const currentPlan = RENTAL_PLANS[selectedPlanIdx] || RENTAL_PLANS[0];
   const currentCrypto = CRYPTO_LIST.find((c) => c.id === selectedCryptoId) || CRYPTO_LIST[0];
 
+  const getPlanLabel = (planId: string) => {
+    if (planId === "24h") return cp.plan24h;
+    if (planId === "7d") return cp.plan7d;
+    if (planId === "30d") return cp.plan30d;
+    return cp.plan24h;
+  };
+
   // Calculated crypto amount
   const rawCryptoAmount = currentPlan.priceEur * currentCrypto.ratePerEur;
   const cryptoAmountFormatted = rawCryptoAmount.toFixed(currentCrypto.decimals);
@@ -176,7 +185,7 @@ export function CoinPaymentsModal({
   const handleProceedToInvoice = () => {
     const emailToUse = user?.email || buyerEmail.trim();
     if (!emailToUse || !emailToUse.includes("@")) {
-      setErrorMsg("Por favor, introduce un correo electrónico válido para registrar tu alquiler.");
+      setErrorMsg(cp.pleaseEnterEmail);
       return;
     }
     setErrorMsg(null);
@@ -192,9 +201,7 @@ export function CoinPaymentsModal({
     // Simulate blockchain verification check from CoinPayments gateway
     setTimeout(async () => {
       try {
-        const emailToUse = user?.email || buyerEmail.trim();
         const userId = user?.id;
-
         const expiresAt = new Date(Date.now() + currentPlan.hours * 3600 * 1000).toISOString();
 
         // 1. Create or ensure rental in Supabase
@@ -225,7 +232,6 @@ export function CoinPaymentsModal({
         if (onSuccess) onSuccess();
       } catch (err: any) {
         console.error("Error creating rental:", err);
-        // Even if non-fatal auth sync error, allow success UX
         setStep("success");
       }
     }, 2400);
@@ -238,7 +244,11 @@ export function CoinPaymentsModal({
     }
 
     if ((profile?.credits ?? 0) < currentPlan.credits) {
-      setErrorMsg(`Saldo insuficiente. Necesitas ${currentPlan.credits} créditos y tienes ${profile?.credits ?? 0}. Puedes comprar con CoinPayments directamente.`);
+      setErrorMsg(
+        cp.insufficientCredits
+          .replace("{needed}", currentPlan.credits.toString())
+          .replace("{have}", (profile?.credits ?? 0).toString())
+      );
       return;
     }
 
@@ -305,12 +315,12 @@ export function CoinPaymentsModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-bold text-white">Comprar Número Premium</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white">{cp.modalTitle}</h3>
                 <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-400">
-                  Exclusivo
+                  {cp.exclusiveBadge}
                 </span>
               </div>
-              <p className="text-xs text-zinc-400">Pago seguro mediante CoinPayments Gateway</p>
+              <p className="text-xs text-zinc-400">{cp.modalSubtitle}</p>
             </div>
           </div>
 
@@ -331,12 +341,12 @@ export function CoinPaymentsModal({
             <div>
               <div className="font-mono text-base sm:text-lg font-bold text-white tracking-wide">{phone.number}</div>
               <div className="text-xs text-zinc-400">
-                {phone.country_name} • <span className="text-amber-400 font-medium">100% Nuevo & Privado</span>
+                {phone.country_name} • <span className="text-amber-400 font-medium">{cp.newAndPrivate}</span>
               </div>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-zinc-400">Precio</div>
+            <div className="text-xs text-zinc-400">{cp.price}</div>
             <div className="text-base sm:text-lg font-black text-emerald-400">
               {currentPlan.priceEur.toFixed(2)} €
             </div>
@@ -356,7 +366,7 @@ export function CoinPaymentsModal({
             {/* 1. Select Duration / Plan */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2">
-                1. Selecciona la duración del alquiler
+                {cp.selectDuration}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {RENTAL_PLANS.map((plan, idx) => (
@@ -372,15 +382,15 @@ export function CoinPaymentsModal({
                   >
                     {plan.popular && (
                       <span className="absolute -top-2 right-2 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-1.5 py-0.2 text-[9px] font-black uppercase text-zinc-950">
-                        Top
+                        {cp.topBadge}
                       </span>
                     )}
-                    <div className="text-xs font-bold text-white">{plan.label}</div>
+                    <div className="text-xs font-bold text-white">{getPlanLabel(plan.id)}</div>
                     <div className="mt-1 text-sm font-extrabold text-amber-400">
                       {plan.priceEur.toFixed(2)} €
                     </div>
                     <div className="text-[10px] text-zinc-500 font-mono">
-                      o {plan.credits} créditos
+                      {cp.orCredits.replace("{n}", plan.credits.toString())}
                     </div>
                   </button>
                 ))}
@@ -390,7 +400,7 @@ export function CoinPaymentsModal({
             {/* 2. Select Payment Method */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2">
-                2. Método de pago
+                {cp.paymentMethodTitle}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -407,9 +417,9 @@ export function CoinPaymentsModal({
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-white flex items-center gap-1">
-                      CoinPayments
+                      {cp.cryptoMethod}
                     </div>
-                    <div className="text-[10px] text-emerald-400 font-medium truncate">Criptomonedas (USDT/BTC)</div>
+                    <div className="text-[10px] text-emerald-400 font-medium truncate">{cp.cryptoSub}</div>
                   </div>
                 </button>
 
@@ -426,9 +436,9 @@ export function CoinPaymentsModal({
                     <Wallet className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-white">Saldo de Cuenta</div>
+                    <div className="text-xs font-bold text-white">{cp.balanceMethod}</div>
                     <div className="text-[10px] text-zinc-400 truncate">
-                      {user ? `${profile?.credits ?? 0} créditos` : "Inicia sesión"}
+                      {user ? `${profile?.credits ?? 0} ${ta.credits.credits}` : ta.auth.signIn}
                     </div>
                   </div>
                 </button>
@@ -439,7 +449,7 @@ export function CoinPaymentsModal({
             {paymentMethod === "coinpayments" && (
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2">
-                  3. Selecciona tu Criptomoneda
+                  {cp.selectCryptoTitle}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {CRYPTO_LIST.map((crypto) => {
@@ -459,7 +469,7 @@ export function CoinPaymentsModal({
                       >
                         {crypto.recommended && (
                           <span className="absolute top-1.5 right-1.5 rounded bg-emerald-500/20 px-1 py-0.2 text-[8px] font-bold text-emerald-300">
-                            Baja comisión
+                            {cp.lowFee}
                           </span>
                         )}
                         <div className="flex items-center gap-1.5">
@@ -486,7 +496,7 @@ export function CoinPaymentsModal({
             {!user && (
               <div>
                 <label className="text-xs font-semibold text-zinc-300 block mb-1">
-                  Tu correo electrónico (para entregarte el número y acceso a tus SMS):
+                  {cp.yourEmailGuest}
                 </label>
                 <input
                   type="email"
@@ -507,7 +517,9 @@ export function CoinPaymentsModal({
                   className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 py-3 text-sm font-bold text-zinc-950 shadow-xl shadow-amber-500/10 hover:from-amber-400 hover:to-yellow-400 transition-all"
                 >
                   <Coins className="h-4 w-4" />
-                  Pagar {currentPlan.priceEur.toFixed(2)} € con CoinPayments ({currentCrypto.symbol})
+                  {cp.payWithCryptoBtn
+                    .replace("{amount}", currentPlan.priceEur.toFixed(2))
+                    .replace("{crypto}", currentCrypto.symbol)}
                   <ArrowRight className="h-4 w-4" />
                 </button>
               ) : (
@@ -518,7 +530,7 @@ export function CoinPaymentsModal({
                   className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-sm font-bold text-white shadow-xl shadow-emerald-500/10 hover:from-emerald-400 hover:to-teal-500 transition-all disabled:opacity-50"
                 >
                   <Wallet className="h-4 w-4" />
-                  Pagar {currentPlan.credits} Créditos de mi Saldo
+                  {cp.payWithCreditsBtn.replace("{credits}", currentPlan.credits.toString())}
                 </button>
               )}
             </div>
@@ -527,12 +539,12 @@ export function CoinPaymentsModal({
             <div className="flex items-center justify-center gap-4 text-[11px] text-zinc-500 pt-1">
               <span className="flex items-center gap-1">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                CoinPayments Seguro
+                {cp.secureBadge}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
                 <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                Activación Inmediata
+                {cp.instantBadge}
               </span>
             </div>
           </div>
@@ -544,7 +556,7 @@ export function CoinPaymentsModal({
             <div className="flex items-center justify-between rounded-xl bg-zinc-900/60 px-3.5 py-2 border border-zinc-800">
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs text-zinc-300 font-medium">Orden CoinPayments: <strong className="font-mono text-white">{orderId}</strong></span>
+                <span className="text-xs text-zinc-300 font-medium">{cp.orderIdLabel} <strong className="font-mono text-white">{orderId}</strong></span>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-amber-400 font-mono font-semibold">
                 <Clock className="h-3.5 w-3.5" />
@@ -558,11 +570,11 @@ export function CoinPaymentsModal({
               <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-3 shadow-lg shrink-0">
                 <img
                   src={qrUrl}
-                  alt={`QR de pago ${currentCrypto.symbol}`}
+                  alt={`QR ${currentCrypto.symbol}`}
                   className="h-36 w-36 sm:h-40 sm:w-40 object-contain"
                 />
                 <span className="mt-1 text-[9px] font-bold text-zinc-800 uppercase tracking-wider">
-                  Escanear con tu Wallet
+                  {cp.scanWallet}
                 </span>
               </div>
 
@@ -571,8 +583,8 @@ export function CoinPaymentsModal({
                 {/* Crypto Amount */}
                 <div>
                   <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                    <span>Monto exacto a enviar:</span>
-                    <span className="text-zinc-500">Red: {currentCrypto.network}</span>
+                    <span>{cp.exactAmount}</span>
+                    <span className="text-zinc-500">{cp.network} {currentCrypto.network}</span>
                   </div>
                   <div className="mt-1 flex items-center justify-between rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2">
                     <span className="font-mono text-sm font-bold text-white">
@@ -584,14 +596,14 @@ export function CoinPaymentsModal({
                       className="flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-800 px-2 py-1 text-[11px] font-semibold text-zinc-300 hover:text-white transition-colors"
                     >
                       {copiedField === "amount" ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-                      {copiedField === "amount" ? "Copiado" : "Copiar"}
+                      {copiedField === "amount" ? cp.copied : cp.copy}
                     </button>
                   </div>
                 </div>
 
                 {/* Wallet Address */}
                 <div>
-                  <div className="text-[11px] text-zinc-400">Dirección de depósito CoinPayments:</div>
+                  <div className="text-[11px] text-zinc-400">{cp.depositAddress}</div>
                   <div className="mt-1 flex items-center justify-between rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2">
                     <span className="truncate font-mono text-xs text-zinc-200 pr-2" title={currentCrypto.address}>
                       {currentCrypto.address}
@@ -602,14 +614,16 @@ export function CoinPaymentsModal({
                       className="flex items-center gap-1 shrink-0 rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[11px] font-semibold text-zinc-300 hover:text-white transition-colors"
                     >
                       {copiedField === "address" ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-                      {copiedField === "address" ? "Copiada" : "Copiar"}
+                      {copiedField === "address" ? cp.copied : cp.copy}
                     </button>
                   </div>
                 </div>
 
                 {/* Warning note */}
                 <p className="text-[10px] text-amber-400/90 leading-relaxed">
-                  ⚠️ Envía únicamente <strong>{currentCrypto.symbol}</strong> mediante la red <strong>{currentCrypto.network}</strong>. La confirmación es procesada automáticamente.
+                  {cp.cryptoWarning
+                    .replace("{crypto}", currentCrypto.symbol)
+                    .replace("{network}", currentCrypto.network)}
                 </p>
               </div>
             </div>
@@ -622,7 +636,7 @@ export function CoinPaymentsModal({
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-sm font-bold text-white shadow-xl shadow-emerald-500/10 hover:from-emerald-400 hover:to-teal-500 transition-all"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Ya he enviado el pago (Verificar en Red)
+                {cp.iHavePaidBtn}
               </button>
 
               <button
@@ -630,7 +644,7 @@ export function CoinPaymentsModal({
                 onClick={() => setStep("config")}
                 className="w-full py-2 text-center text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
               >
-                ← Volver y cambiar criptomoneda o duración
+                {cp.backBtn}
               </button>
             </div>
           </div>
@@ -643,9 +657,11 @@ export function CoinPaymentsModal({
               <RefreshCw className="h-8 w-8 text-emerald-400 animate-spin" />
             </div>
             <div>
-              <h4 className="text-base font-bold text-white">Verificando transacción en CoinPayments...</h4>
+              <h4 className="text-base font-bold text-white">{cp.verifyingTitle}</h4>
               <p className="mt-1 text-xs text-zinc-400 max-w-xs mx-auto">
-                Escaneando la red blockchain y confirmando el depósito de {cryptoAmountFormatted} {currentCrypto.symbol}...
+                {cp.verifyingSub
+                  .replace("{amount}", cryptoAmountFormatted)
+                  .replace("{crypto}", currentCrypto.symbol)}
               </p>
             </div>
           </div>
@@ -659,20 +675,20 @@ export function CoinPaymentsModal({
             </div>
 
             <div>
-              <h4 className="text-lg font-bold text-white">¡Pago Verificado con Éxito!</h4>
+              <h4 className="text-lg font-bold text-white">{cp.successTitle}</h4>
               <p className="mt-1 text-xs text-zinc-400">
-                Tu número exclusivo ha sido asignado y reservado para tu uso personal.
+                {cp.successSub}
               </p>
             </div>
 
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-left">
               <div className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider">
-                Número Premium Activo:
+                {cp.activeNumber}
               </div>
               <div className="mt-1 font-mono text-xl font-black text-white">{phone.number}</div>
               <div className="mt-1 flex items-center justify-between text-xs text-zinc-300">
-                <span>Duración: <strong>{currentPlan.label}</strong></span>
-                <span>Vence: <strong>{formatDate(new Date(Date.now() + currentPlan.hours * 3600 * 1000).toISOString())}</strong></span>
+                <span>{cp.duration} <strong>{getPlanLabel(currentPlan.id)}</strong></span>
+                <span>{cp.expires} <strong>{formatDate(new Date(Date.now() + currentPlan.hours * 3600 * 1000).toISOString())}</strong></span>
               </div>
             </div>
 
@@ -685,7 +701,7 @@ export function CoinPaymentsModal({
                 }}
                 className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-teal-500 transition-all"
               >
-                Ir a Mi Panel de Control
+                {cp.goToDashboard}
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>

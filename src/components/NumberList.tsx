@@ -71,7 +71,7 @@ function NumberCard({ phone, onViewSms, onBuy, lang }: NumberCardProps) {
           <div className="mt-3.5 flex items-center gap-2">
             <div className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold text-amber-300">
               <Sparkles className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-              <span>Número Nuevo & 100% Privado</span>
+              <span>{ta.coinpayments.newAndPrivate}</span>
             </div>
           </div>
         ) : (
@@ -95,7 +95,7 @@ function NumberCard({ phone, onViewSms, onBuy, lang }: NumberCardProps) {
             {/* Prices displayed above "Comprar ahora" */}
             <div className="rounded-xl border border-zinc-800/90 bg-zinc-950/70 p-2">
               <div className="flex items-center justify-between text-[10px] text-zinc-400 px-0.5 mb-1.5 font-medium">
-                <span>Precios de alquiler:</span>
+                <span>{ta.coinpayments.rentalPrices}</span>
                 <span className="text-amber-400 font-bold flex items-center gap-1">
                   <Coins className="h-3 w-3" />
                   CoinPayments / Cripto
@@ -105,6 +105,13 @@ function NumberCard({ phone, onViewSms, onBuy, lang }: NumberCardProps) {
               <div className="grid grid-cols-3 gap-1 text-center">
                 {RENTAL_PLANS.map((plan, idx) => {
                   const isSelected = selectedPlanIndex === idx;
+                  const planLabel =
+                    plan.id === "24h"
+                      ? ta.coinpayments.plan24h
+                      : plan.id === "7d"
+                      ? ta.coinpayments.plan7d
+                      : ta.coinpayments.plan30d;
+
                   return (
                     <button
                       key={plan.id}
@@ -120,7 +127,7 @@ function NumberCard({ phone, onViewSms, onBuy, lang }: NumberCardProps) {
                       }`}
                     >
                       <div className={`text-[9px] uppercase font-bold tracking-tight ${isSelected ? "text-amber-300" : "text-zinc-400"}`}>
-                        {plan.label}
+                        {planLabel}
                       </div>
                       <div className="text-xs font-black text-white mt-0.5">
                         {plan.priceEur.toFixed(2)} €

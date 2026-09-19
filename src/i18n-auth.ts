@@ -142,6 +142,54 @@ export type AuthDict = {
     accessDenied: string;
     accessDeniedDesc: string;
   };
+  coinpayments: {
+    modalTitle: string;
+    exclusiveBadge: string;
+    modalSubtitle: string;
+    price: string;
+    newAndPrivate: string;
+    selectDuration: string;
+    plan24h: string;
+    plan7d: string;
+    plan30d: string;
+    orCredits: string;
+    paymentMethodTitle: string;
+    cryptoMethod: string;
+    cryptoSub: string;
+    balanceMethod: string;
+    selectCryptoTitle: string;
+    lowFee: string;
+    yourEmailGuest: string;
+    payWithCryptoBtn: string;
+    payWithCreditsBtn: string;
+    secureBadge: string;
+    instantBadge: string;
+    orderIdLabel: string;
+    scanWallet: string;
+    exactAmount: string;
+    network: string;
+    copy: string;
+    copied: string;
+    copiedAddress: string;
+    copiedAmount: string;
+    depositAddress: string;
+    cryptoWarning: string;
+    iHavePaidBtn: string;
+    backBtn: string;
+    verifyingTitle: string;
+    verifyingSub: string;
+    successTitle: string;
+    successSub: string;
+    activeNumber: string;
+    duration: string;
+    expires: string;
+    goToDashboard: string;
+    rentalPrices: string;
+    noPriorHistory: string;
+    topBadge: string;
+    insufficientCredits: string;
+    pleaseEnterEmail: string;
+  };
 };
 
 export const authTranslations: Record<Lang, AuthDict> = {
@@ -287,6 +335,54 @@ export const authTranslations: Record<Lang, AuthDict> = {
       accessDenied: "Acceso denegado",
       accessDeniedDesc: "No tienes permisos de administrador",
     },
+    coinpayments: {
+      modalTitle: "Comprar Número Premium",
+      exclusiveBadge: "Exclusivo",
+      modalSubtitle: "Pago seguro mediante CoinPayments Gateway",
+      price: "Precio",
+      newAndPrivate: "Número Nuevo & 100% Privado",
+      selectDuration: "1. Selecciona la duración del alquiler",
+      plan24h: "24 Horas",
+      plan7d: "7 Días",
+      plan30d: "30 Días",
+      orCredits: "o {n} créditos",
+      paymentMethodTitle: "2. Método de pago",
+      cryptoMethod: "CoinPayments",
+      cryptoSub: "Criptomonedas (USDT/BTC/LTC)",
+      balanceMethod: "Saldo de Cuenta",
+      selectCryptoTitle: "3. Selecciona tu Criptomoneda",
+      lowFee: "Baja comisión",
+      yourEmailGuest: "Tu correo electrónico (para recibir tu número y ver tus SMS):",
+      payWithCryptoBtn: "Pagar {amount} € con CoinPayments ({crypto})",
+      payWithCreditsBtn: "Pagar {credits} Créditos de mi Saldo",
+      secureBadge: "CoinPayments Seguro",
+      instantBadge: "Activación Inmediata",
+      orderIdLabel: "Orden CoinPayments:",
+      scanWallet: "Escanear con tu Wallet",
+      exactAmount: "Monto exacto a enviar:",
+      network: "Red:",
+      copy: "Copiar",
+      copied: "Copiado",
+      copiedAddress: "Dirección copiada",
+      copiedAmount: "Monto copiado",
+      depositAddress: "Dirección de depósito CoinPayments:",
+      cryptoWarning: "Envía únicamente {crypto} mediante la red {network}. La activación del número es automática tras la confirmación de la red.",
+      iHavePaidBtn: "Ya he enviado el pago (Verificar en Red)",
+      backBtn: "← Volver y cambiar criptomoneda o duración",
+      verifyingTitle: "Verificando transacción en CoinPayments...",
+      verifyingSub: "Escaneando la red blockchain y confirmando el depósito de {amount} {crypto}...",
+      successTitle: "¡Pago Verificado con Éxito!",
+      successSub: "Tu número exclusivo ha sido asignado y reservado para tu uso personal.",
+      activeNumber: "Número Premium Activo:",
+      duration: "Duración:",
+      expires: "Vence:",
+      goToDashboard: "Ir a Mi Panel de Control",
+      rentalPrices: "Precios de alquiler:",
+      noPriorHistory: "Sin historial previo",
+      topBadge: "Top",
+      insufficientCredits: "Saldo insuficiente. Necesitas {needed} créditos y tienes {have}.",
+      pleaseEnterEmail: "Por favor, introduce un correo electrónico válido.",
+    },
   },
   en: {
     nav: { dashboard: "My Dashboard", admin: "Admin", login: "Sign In", register: "Sign Up", signOut: "Sign Out" },
@@ -429,6 +525,54 @@ export const authTranslations: Record<Lang, AuthDict> = {
       revenueThisMonth: "Revenue this month",
       accessDenied: "Access denied",
       accessDeniedDesc: "You don't have admin permissions",
+    },
+    coinpayments: {
+      modalTitle: "Buy Premium Number",
+      exclusiveBadge: "Exclusive",
+      modalSubtitle: "Secure payment via CoinPayments Gateway",
+      price: "Price",
+      newAndPrivate: "100% Brand New & Private Number",
+      selectDuration: "1. Select rental duration",
+      plan24h: "24 Hours",
+      plan7d: "7 Days",
+      plan30d: "30 Days",
+      orCredits: "or {n} credits",
+      paymentMethodTitle: "2. Payment method",
+      cryptoMethod: "CoinPayments",
+      cryptoSub: "Cryptocurrency (USDT/BTC/LTC)",
+      balanceMethod: "Account Balance",
+      selectCryptoTitle: "3. Select your Cryptocurrency",
+      lowFee: "Low network fee",
+      yourEmailGuest: "Your email address (to receive your number and SMS access):",
+      payWithCryptoBtn: "Pay {amount} € with CoinPayments ({crypto})",
+      payWithCreditsBtn: "Pay {credits} Credits from my Balance",
+      secureBadge: "Secure CoinPayments",
+      instantBadge: "Instant Activation",
+      orderIdLabel: "CoinPayments Order:",
+      scanWallet: "Scan with your Wallet",
+      exactAmount: "Exact amount to send:",
+      network: "Network:",
+      copy: "Copy",
+      copied: "Copied",
+      copiedAddress: "Address copied",
+      copiedAmount: "Amount copied",
+      depositAddress: "CoinPayments deposit address:",
+      cryptoWarning: "Send only {crypto} using the {network} network. Your number is activated automatically once confirmed on blockchain.",
+      iHavePaidBtn: "I have sent the payment (Verify Network)",
+      backBtn: "← Go back and change crypto or duration",
+      verifyingTitle: "Verifying transaction on CoinPayments...",
+      verifyingSub: "Scanning blockchain and verifying deposit of {amount} {crypto}...",
+      successTitle: "Payment Verified Successfully!",
+      successSub: "Your exclusive number has been allocated and reserved for your personal use.",
+      activeNumber: "Active Premium Number:",
+      duration: "Duration:",
+      expires: "Expires:",
+      goToDashboard: "Go to My Dashboard",
+      rentalPrices: "Rental prices:",
+      noPriorHistory: "No prior history",
+      topBadge: "Top",
+      insufficientCredits: "Insufficient balance. You need {needed} credits and have {have}.",
+      pleaseEnterEmail: "Please enter a valid email address.",
     },
   },
   fr: {
@@ -573,6 +717,54 @@ export const authTranslations: Record<Lang, AuthDict> = {
       accessDenied: "Accès refusé",
       accessDeniedDesc: "Vous n'avez pas les permissions d'administrateur",
     },
+    coinpayments: {
+      modalTitle: "Acheter un Numéro Premium",
+      exclusiveBadge: "Exclusif",
+      modalSubtitle: "Paiement sécurisé via la passerelle CoinPayments",
+      price: "Prix",
+      newAndPrivate: "Numéro Neuf & 100% Privé",
+      selectDuration: "1. Choisissez la durée de location",
+      plan24h: "24 Heures",
+      plan7d: "7 Jours",
+      plan30d: "30 Jours",
+      orCredits: "ou {n} crédits",
+      paymentMethodTitle: "2. Mode de paiement",
+      cryptoMethod: "CoinPayments",
+      cryptoSub: "Cryptomonnaie (USDT/BTC/LTC)",
+      balanceMethod: "Solde du compte",
+      selectCryptoTitle: "3. Choisissez votre Cryptomonnaie",
+      lowFee: "Frais réduits",
+      yourEmailGuest: "Votre adresse email (pour recevoir votre numéro et voir vos SMS) :",
+      payWithCryptoBtn: "Payer {amount} € avec CoinPayments ({crypto})",
+      payWithCreditsBtn: "Payer {credits} Crédits de mon solde",
+      secureBadge: "CoinPayments Sécurisé",
+      instantBadge: "Activation Immédiate",
+      orderIdLabel: "Commande CoinPayments :",
+      scanWallet: "Scanner avec votre Portefeuille",
+      exactAmount: "Montant exact à envoyer :",
+      network: "Réseau :",
+      copy: "Copier",
+      copied: "Copié",
+      copiedAddress: "Adresse copiée",
+      copiedAmount: "Montant copié",
+      depositAddress: "Adresse de dépôt CoinPayments :",
+      cryptoWarning: "Envoyez uniquement {crypto} via le réseau {network}. L'activation est automatique dès confirmation sur la blockchain.",
+      iHavePaidBtn: "J'ai déjà envoyé le paiement (Vérifier)",
+      backBtn: "← Retour pour changer de devise ou de durée",
+      verifyingTitle: "Vérification de la transaction sur CoinPayments...",
+      verifyingSub: "Analyse de la blockchain et confirmation du dépôt de {amount} {crypto}...",
+      successTitle: "Paiement Vérifié avec Succès !",
+      successSub: "Votre numéro exclusif vous a été attribué et réservé pour votre usage personnel.",
+      activeNumber: "Numéro Premium Actif :",
+      duration: "Durée :",
+      expires: "Expire le :",
+      goToDashboard: "Accéder à Mon Tableau de Bord",
+      rentalPrices: "Tarifs de location :",
+      noPriorHistory: "Sans aucun historique antérieur",
+      topBadge: "Top",
+      insufficientCredits: "Solde insuffisant. Vous avez besoin de {needed} crédits et vous en avez {have}.",
+      pleaseEnterEmail: "Veuillez saisir une adresse email valide.",
+    },
   },
   de: {
     nav: { dashboard: "Mein Dashboard", admin: "Verwaltung", login: "Anmelden", register: "Registrieren", signOut: "Abmelden" },
@@ -716,6 +908,54 @@ export const authTranslations: Record<Lang, AuthDict> = {
       accessDenied: "Zugriff verweigert",
       accessDeniedDesc: "Du hast keine Administratorberechtigungen",
     },
+    coinpayments: {
+      modalTitle: "Premium-Nummer kaufen",
+      exclusiveBadge: "Exklusiv",
+      modalSubtitle: "Sichere Zahlung über CoinPayments Gateway",
+      price: "Preis",
+      newAndPrivate: "100% Neue & Private Nummer",
+      selectDuration: "1. Mietdauer auswählen",
+      plan24h: "24 Stunden",
+      plan7d: "7 Tage",
+      plan30d: "30 Tage",
+      orCredits: "oder {n} Credits",
+      paymentMethodTitle: "2. Zahlungsmethode",
+      cryptoMethod: "CoinPayments",
+      cryptoSub: "Kryptowährung (USDT/BTC/LTC)",
+      balanceMethod: "Kontoguthaben",
+      selectCryptoTitle: "3. Kryptowährung auswählen",
+      lowFee: "Niedrige Gebühr",
+      yourEmailGuest: "Ihre E-Mail-Adresse (für den Empfang der Nummer und Ihrer SMS):",
+      payWithCryptoBtn: "{amount} € mit CoinPayments ({crypto}) bezahlen",
+      payWithCreditsBtn: "{credits} Credits vom Guthaben bezahlen",
+      secureBadge: "Sicheres CoinPayments",
+      instantBadge: "Sofortige Aktivierung",
+      orderIdLabel: "CoinPayments-Bestellung:",
+      scanWallet: "Mit Wallet scannen",
+      exactAmount: "Genauer Betrag zu senden:",
+      network: "Netzwerk:",
+      copy: "Kopieren",
+      copied: "Kopiert",
+      copiedAddress: "Adresse kopiert",
+      copiedAmount: "Betrag kopiert",
+      depositAddress: "CoinPayments-Einzahlungsadresse:",
+      cryptoWarning: "Senden Sie nur {crypto} über das {network}-Netzwerk. Die Aktivierung erfolgt automatisch nach Bestätigung auf der Blockchain.",
+      iHavePaidBtn: "Ich habe die Zahlung gesendet (Prüfen)",
+      backBtn: "← Zurück zur Auswahl der Währung oder Dauer",
+      verifyingTitle: "Transaktion bei CoinPayments wird geprüft...",
+      verifyingSub: "Blockchain-Scan und Bestätigung der Einzahlung von {amount} {crypto}...",
+      successTitle: "Zahlung erfolgreich verifiziert!",
+      successSub: "Ihre exklusive Nummer wurde für Ihre persönliche Nutzung reserviert und aktiviert.",
+      activeNumber: "Aktive Premium-Nummer:",
+      duration: "Dauer:",
+      expires: "Läuft ab am:",
+      goToDashboard: "Zu Meinem Dashboard",
+      rentalPrices: "Mietpreise:",
+      noPriorHistory: "Keine vorherige Historie",
+      topBadge: "Top",
+      insufficientCredits: "Unzureichendes Guthaben. Sie benötigen {needed} Credits und haben {have}.",
+      pleaseEnterEmail: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    },
   },
   it: {
     nav: { dashboard: "Il mio pannello", admin: "Amministrazione", login: "Accedi", register: "Registrati", signOut: "Esci" },
@@ -858,6 +1098,54 @@ export const authTranslations: Record<Lang, AuthDict> = {
       revenueThisMonth: "Ricavi questo mese",
       accessDenied: "Accesso negato",
       accessDeniedDesc: "Non hai i permessi di amministratore",
+    },
+    coinpayments: {
+      modalTitle: "Acquista Numero Premium",
+      exclusiveBadge: "Esclusivo",
+      modalSubtitle: "Pagamento sicuro tramite CoinPayments Gateway",
+      price: "Prezzo",
+      newAndPrivate: "Numero Nuovo & 100% Privato",
+      selectDuration: "1. Seleziona la durata del noleggio",
+      plan24h: "24 Ore",
+      plan7d: "7 Giorni",
+      plan30d: "30 Giorni",
+      orCredits: "o {n} crediti",
+      paymentMethodTitle: "2. Metodo di pagamento",
+      cryptoMethod: "CoinPayments",
+      cryptoSub: "Criptovalute (USDT/BTC/LTC)",
+      balanceMethod: "Saldo dell'account",
+      selectCryptoTitle: "3. Seleziona la tua Criptovaluta",
+      lowFee: "Commissioni basse",
+      yourEmailGuest: "La tua email (per ricevere il tuo numero e visualizzare gli SMS):",
+      payWithCryptoBtn: "Paga {amount} € con CoinPayments ({crypto})",
+      payWithCreditsBtn: "Paga {credits} Crediti dal mio Saldo",
+      secureBadge: "CoinPayments Sicuro",
+      instantBadge: "Attivazione Immediata",
+      orderIdLabel: "Ordine CoinPayments:",
+      scanWallet: "Scansiona con il tuo Wallet",
+      exactAmount: "Importo esatto da inviare:",
+      network: "Rete:",
+      copy: "Copia",
+      copied: "Copiato",
+      copiedAddress: "Indirizzo copiato",
+      copiedAmount: "Importo copiato",
+      depositAddress: "Indirizzo di deposito CoinPayments:",
+      cryptoWarning: "Invia solo {crypto} tramite la rete {network}. L'attivazione è automatica dopo la conferma su blockchain.",
+      iHavePaidBtn: "Ho già inviato il pagamento (Verifica)",
+      backBtn: "← Torna indietro e cambia valuta o durata",
+      verifyingTitle: "Verifica della transazione su CoinPayments...",
+      verifyingSub: "Scansione blockchain e conferma del deposito di {amount} {crypto}...",
+      successTitle: "Pagamento Verificato con Successo!",
+      successSub: "Il tuo numero esclusivo è stato assegnato e riservato per il tuo uso personale.",
+      activeNumber: "Numero Premium Attivo:",
+      duration: "Durata:",
+      expires: "Scade il:",
+      goToDashboard: "Vai al Mio Pannello",
+      rentalPrices: "Prezzi di noleggio:",
+      noPriorHistory: "Nessuna cronologia precedente",
+      topBadge: "Top",
+      insufficientCredits: "Saldo insufficiente. Ti servono {needed} crediti e ne hai {have}.",
+      pleaseEnterEmail: "Inserisci un indirizzo email valido.",
     },
   },
 };
