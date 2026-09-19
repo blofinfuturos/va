@@ -96,6 +96,18 @@ export type AuthDict = {
     manageNumbers: string;
     manageUsers: string;
     managePurchases: string;
+    manageRentals: string;
+    smsInbox: string;
+    assignedTo: string;
+    available: string;
+    rented: string;
+    all: string;
+    expiringSoon: string;
+    extend: string;
+    endRental: string;
+    addCredits: string;
+    smsReceived: string;
+    expiration: string;
     totalUsers: string;
     totalRevenue: string;
     activeRentals: string;
@@ -229,6 +241,18 @@ export const authTranslations: Record<Lang, AuthDict> = {
       manageNumbers: "Gestionar números",
       manageUsers: "Gestionar usuarios",
       managePurchases: "Gestionar compras",
+      manageRentals: "Alquileres de clientes",
+      smsInbox: "Bandeja SMS Global",
+      assignedTo: "Asignado a",
+      available: "Disponible",
+      rented: "Alquilado",
+      all: "Todos",
+      expiringSoon: "Por expirar (<24h)",
+      extend: "Extender",
+      endRental: "Finalizar alquiler",
+      addCredits: "Añadir créditos",
+      smsReceived: "SMS recibidos",
+      expiration: "Vencimiento",
       totalUsers: "Usuarios totales",
       totalRevenue: "Ingresos totales",
       activeRentals: "Alquileres activos",
@@ -360,6 +384,18 @@ export const authTranslations: Record<Lang, AuthDict> = {
       manageNumbers: "Manage numbers",
       manageUsers: "Manage users",
       managePurchases: "Manage purchases",
+      manageRentals: "Customer rentals",
+      smsInbox: "Global SMS Inbox",
+      assignedTo: "Assigned to",
+      available: "Available",
+      rented: "Rented",
+      all: "All",
+      expiringSoon: "Expiring soon (<24h)",
+      extend: "Extend",
+      endRental: "End rental",
+      addCredits: "Add credits",
+      smsReceived: "SMS received",
+      expiration: "Expiration",
       totalUsers: "Total users",
       totalRevenue: "Total revenue",
       activeRentals: "Active rentals",
@@ -491,6 +527,18 @@ export const authTranslations: Record<Lang, AuthDict> = {
       manageNumbers: "Gérer les numéros",
       manageUsers: "Gérer les utilisateurs",
       managePurchases: "Gérer les achats",
+      manageRentals: "Locations clients",
+      smsInbox: "Boîte SMS Globale",
+      assignedTo: "Assigné à",
+      available: "Disponible",
+      rented: "Loué",
+      all: "Tous",
+      expiringSoon: "Expire bientôt (<24h)",
+      extend: "Prolonger",
+      endRental: "Terminer la location",
+      addCredits: "Ajouter crédits",
+      smsReceived: "SMS reçus",
+      expiration: "Expiration",
       totalUsers: "Utilisateurs totaux",
       totalRevenue: "Revenus totaux",
       activeRentals: "Locations actives",
@@ -622,6 +670,18 @@ export const authTranslations: Record<Lang, AuthDict> = {
       manageNumbers: "Nummern verwalten",
       manageUsers: "Benutzer verwalten",
       managePurchases: "Käufe verwalten",
+      manageRentals: "Kundenmieten",
+      smsInbox: "Globales SMS-Postfach",
+      assignedTo: "Zugewiesen an",
+      available: "Verfügbar",
+      rented: "Vermietet",
+      all: "Alle",
+      expiringSoon: "Läuft bald ab (<24h)",
+      extend: "Verlängern",
+      endRental: "Miete beenden",
+      addCredits: "Guthaben aufladen",
+      smsReceived: "Empfangene SMS",
+      expiration: "Ablauf",
       totalUsers: "Benutzer gesamt",
       totalRevenue: "Gesamteinnahmen",
       activeRentals: "Aktive Mietverträge",
@@ -753,6 +813,18 @@ export const authTranslations: Record<Lang, AuthDict> = {
       manageNumbers: "Gestisci numeri",
       manageUsers: "Gestisci utenti",
       managePurchases: "Gestisci acquisti",
+      manageRentals: "Noleggi clienti",
+      smsInbox: "Posta SMS Globale",
+      assignedTo: "Assegnato a",
+      available: "Disponibile",
+      rented: "Noleggiato",
+      all: "Tutti",
+      expiringSoon: "Scade a breve (<24h)",
+      extend: "Estendi",
+      endRental: "Termina noleggio",
+      addCredits: "Aggiungi crediti",
+      smsReceived: "SMS ricevuti",
+      expiration: "Scadenza",
       totalUsers: "Utenti totali",
       totalRevenue: "Ricavi totali",
       activeRentals: "Noleggi attivi",

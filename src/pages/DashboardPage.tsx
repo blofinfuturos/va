@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Wallet, Clock, ShoppingBag, User, Crown, MessageSquare, TrendingUp, Calendar, ChevronRight, Check, X, Star } from "lucide-react";
+import { Wallet, Clock, ShoppingBag, User, Crown, MessageSquare, TrendingUp, Calendar, ChevronRight, Check, X, Star, Shield } from "lucide-react";
 import { useAuth } from "@/AuthContext";
 import { useLang } from "@/LanguageContext";
 import { supabase } from "@/supabaseClient";
@@ -203,7 +203,16 @@ export function DashboardPage() {
               {ta.dashboard.welcome}, <span className="text-emerald-400">{user.email}</span>
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {profile?.is_admin && (
+              <Link
+                to={localizedPath("/admin")}
+                className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-semibold text-amber-400 transition-colors hover:bg-amber-500/20 shadow-md shadow-amber-500/5"
+              >
+                <Shield className="h-4 w-4" />
+                {ta.nav.admin}
+              </Link>
+            )}
             <button
               onClick={() => setShowCreditsModal(true)}
               className="flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/60 px-4 py-2.5 text-sm font-medium text-zinc-200 transition-colors hover:border-emerald-500/30 hover:text-emerald-400"

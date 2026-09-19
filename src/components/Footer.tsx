@@ -34,6 +34,14 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  to={localizedPath("/admin")}
+                  className="text-xs text-zinc-600 transition-colors hover:text-amber-400"
+                >
+                  Panel de Administrador
+                </Link>
+              </li>
             </ul>
           </div>
 
