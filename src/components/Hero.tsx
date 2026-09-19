@@ -47,14 +47,14 @@ export function Hero() {
             {t.hero.subtitle}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mx-auto mt-8 grid max-w-xs grid-cols-2 gap-2.5 sm:max-w-xl sm:grid-cols-4 sm:gap-3 md:max-w-2xl">
             {features.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-sm font-medium text-zinc-300"
+                className="flex items-center justify-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 px-2.5 py-2 text-xs font-medium text-zinc-300 whitespace-nowrap sm:gap-2 sm:px-3.5 md:px-4 md:text-sm"
               >
-                <f.icon className="h-4 w-4 text-emerald-400" />
-                {f.text}
+                <f.icon className="h-3.5 w-3.5 shrink-0 text-emerald-400 md:h-4 md:w-4" />
+                <span>{f.text}</span>
               </div>
             ))}
           </div>
