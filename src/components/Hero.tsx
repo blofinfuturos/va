@@ -43,7 +43,7 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-zinc-400">
+          <p className="mx-auto mt-6 max-w-2xl text-sm sm:text-base leading-relaxed text-zinc-400">
             {t.hero.subtitle}
           </p>
 
