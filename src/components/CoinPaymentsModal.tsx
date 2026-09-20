@@ -440,43 +440,55 @@ export function CoinPaymentsModal({
               <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2">
                 {cp.paymentMethodTitle}
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("coinpayments")}
-                  className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all ${
+                  className={`relative flex items-center gap-3 rounded-2xl border p-3 text-left transition-all ${
                     paymentMethod === "coinpayments"
-                      ? "border-emerald-500/60 bg-emerald-500/10 text-white ring-1 ring-emerald-500/30"
-                      : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-white"
+                      ? "border-emerald-500/80 bg-emerald-500/10 text-white ring-1 ring-emerald-500/40 shadow-md shadow-emerald-500/5"
+                      : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-                    <Coins className="h-4 w-4" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <Coins className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-white flex items-center gap-1">
-                      {cp.cryptoMethod}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs font-bold text-white truncate">CoinPayments</span>
+                      <span className="shrink-0 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300">
+                        Sin registro
+                      </span>
                     </div>
-                    <div className="text-[10px] text-emerald-400 font-medium truncate">{cp.cryptoSub}</div>
+                    <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                      Criptomonedas (USDT/BTC/LTC)
+                    </div>
                   </div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("credits")}
-                  className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all ${
+                  className={`relative flex items-center gap-3 rounded-2xl border p-3 text-left transition-all ${
                     paymentMethod === "credits"
-                      ? "border-emerald-500/60 bg-emerald-500/10 text-white ring-1 ring-emerald-500/30"
-                      : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-white"
+                      ? "border-emerald-500/80 bg-emerald-500/10 text-white ring-1 ring-emerald-500/40 shadow-md shadow-emerald-500/5"
+                      : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300">
                     <Wallet className="h-4 w-4" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-white">{cp.balanceMethod}</div>
-                    <div className="text-[10px] text-zinc-400 truncate">
-                      {user ? `${profile?.credits ?? 0} ${ta.credits.credits}` : ta.auth.signIn}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs font-bold text-white truncate">{cp.balanceMethod}</span>
+                      {user && (
+                        <span className="shrink-0 font-mono text-[10px] text-emerald-400 font-bold">
+                          {profile?.credits ?? 0} cr
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                      {user ? `${profile?.credits ?? 0} ${ta.credits.credits}` : "Requiere iniciar sesión"}
                     </div>
                   </div>
                 </button>
