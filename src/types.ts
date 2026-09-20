@@ -31,7 +31,9 @@ export type Profile = {
 export type Rental = {
   id: string;
   phone_number_id: string;
-  user_id: string;
+  user_id?: string | null;
+  access_token?: string | null;
+  guest_email?: string | null;
   status: "active" | "expired" | "cancelled";
   duration_hours: number;
   price: number;
@@ -43,7 +45,9 @@ export type Rental = {
 
 export type Purchase = {
   id: string;
-  user_id: string;
+  user_id?: string | null;
+  access_token?: string | null;
+  guest_email?: string | null;
   type: "number_rental" | "credits";
   amount: number;
   credits_purchased: number;

@@ -16,6 +16,8 @@ import {
   CheckCircle2,
   Lock,
   ChevronRight,
+  Bookmark,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/AuthContext";
 import { useLang } from "@/LanguageContext";
@@ -127,6 +129,7 @@ export function CoinPaymentsModal({
   const [selectedCryptoId, setSelectedCryptoId] = useState("usdt_trc20");
   const [paymentMethod, setPaymentMethod] = useState<"coinpayments" | "credits">("coinpayments");
   const [buyerEmail, setBuyerEmail] = useState("");
+  const [guestToken, setGuestToken] = useState<string>("");
 
   const [step, setStep] = useState<"config" | "invoice" | "verifying" | "success">("config");
   const [copiedField, setCopiedField] = useState<"address" | "amount" | null>(null);
@@ -140,6 +143,8 @@ export function CoinPaymentsModal({
       setStep("config");
       setErrorMsg(null);
       setTimeLeft(3599);
+      const token = "gs_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+      setGuestToken(token);
       if (user?.email) {
         setBuyerEmail(user.email);
       }
@@ -183,12 +188,14 @@ export function CoinPaymentsModal({
   };
 
   const handleProceedToInvoice = () => {
-    const emailToUse = user?.email || buyerEmail.trim();
-    if (!emailToUse || !emailToUse.includes("@")) {
-      setErrorMsg(cp.pleaseEnterEmail);
-      return;
-    }
     setErrorMsg(null);
+    const token =
+      guestToken ||
+      "gs_" +
+        Math.random().toString(36).substring(2, 10) +
+        Date.now().toString(36) +
+        Math.random().toString(36).substring(2, 8);
+    setGuestToken(token);
     const generatedId = `CP-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     setOrderId(generatedId);
     setStep("invoice");
@@ -201,30 +208,61 @@ export function CoinPaymentsModal({
     // Simulate blockchain verification check from CoinPayments gateway
     setTimeout(async () => {
       try {
-        const userId = user?.id;
+        const userId = user?.id || null;
         const expiresAt = new Date(Date.now() + currentPlan.hours * 3600 * 1000).toISOString();
+        const tokenToUse =
+          guestToken ||
+          "gs_" +
+            Math.random().toString(36).substring(2, 10) +
+            Date.now().toString(36) +
+            Math.random().toString(36).substring(2, 8);
+        setGuestToken(tokenToUse);
 
         // 1. Create or ensure rental in Supabase
+        const rentalPayload: any = {
+          phone_number_id: phone.id,
+          duration_hours: currentPlan.hours,
+          price: currentPlan.priceEur,
+          status: "active",
+          expires_at: expiresAt,
+          access_token: tokenToUse,
+          guest_email: user?.email || buyerEmail.trim() || null,
+        };
         if (userId) {
-          await supabase.from("premium_number_rentals").insert({
-            phone_number_id: phone.id,
-            user_id: userId,
-            duration_hours: currentPlan.hours,
-            price: currentPlan.priceEur,
-            status: "active",
-            expires_at: expiresAt,
-          });
+          rentalPayload.user_id = userId;
+        }
 
-          // 2. Record purchase in purchases table
-          await supabase.from("purchases").insert({
-            user_id: userId,
-            phone_number_id: phone.id,
-            type: "number_rental",
-            amount: currentPlan.priceEur,
-            credits_purchased: 0,
-            status: "completed",
-          });
+        const { data: insertedRental } = await supabase
+          .from("premium_number_rentals")
+          .insert(rentalPayload)
+          .select("*, phone_numbers(*)")
+          .maybeSingle();
 
+        // Local storage backup for immediate zero-friction access
+        const fullRentalData = insertedRental || {
+          ...rentalPayload,
+          id: tokenToUse,
+          phone_numbers: phone,
+          created_at: new Date().toISOString(),
+        };
+        localStorage.setItem(`ghostsms_guest_${tokenToUse}`, JSON.stringify(fullRentalData));
+
+        // 2. Record purchase in purchases table
+        const purchasePayload: any = {
+          phone_number_id: phone.id,
+          type: "number_rental",
+          amount: currentPlan.priceEur,
+          credits_purchased: 0,
+          status: "completed",
+          access_token: tokenToUse,
+          guest_email: user?.email || buyerEmail.trim() || null,
+        };
+        if (userId) {
+          purchasePayload.user_id = userId;
+        }
+        await supabase.from("purchases").insert(purchasePayload);
+
+        if (userId) {
           await refreshProfile();
         }
 
@@ -492,19 +530,27 @@ export function CoinPaymentsModal({
               </div>
             )}
 
-            {/* Email Field if guest */}
+            {/* Email Field if guest (completely optional) */}
             {!user && (
               <div>
-                <label className="text-xs font-semibold text-zinc-300 block mb-1">
-                  {cp.yourEmailGuest}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-zinc-300">
+                    {cp.yourEmailGuest}
+                  </label>
+                  <span className="text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    Opcional / Sin registro
+                  </span>
+                </div>
                 <input
                   type="email"
                   value={buyerEmail}
                   onChange={(e) => setBuyerEmail(e.target.value)}
-                  placeholder="ejemplo@correo.com"
+                  placeholder="ejemplo@correo.com (opcional para recibir tu enlace)"
                   className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
                 />
+                <p className="mt-1 text-[10px] text-zinc-500">
+                  ✨ No necesitas registrarte ni crear contraseñas. Al pagar se generará tu URL privada directa para ver tus SMS.
+                </p>
               </div>
             )}
 
@@ -669,9 +715,9 @@ export function CoinPaymentsModal({
 
         {/* STEP 4: SUCCESS */}
         {step === "success" && (
-          <div className="py-6 text-center space-y-4">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
-              <Check className="h-8 w-8" />
+          <div className="py-4 text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
+              <Check className="h-7 w-7" />
             </div>
 
             <div>
@@ -681,29 +727,81 @@ export function CoinPaymentsModal({
               </p>
             </div>
 
+            {/* Active Number Details */}
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-left">
-              <div className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider">
-                {cp.activeNumber}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider">
+                  {cp.activeNumber}
+                </span>
+                <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                  Activo Ahora
+                </span>
               </div>
-              <div className="mt-1 font-mono text-xl font-black text-white">{phone.number}</div>
-              <div className="mt-1 flex items-center justify-between text-xs text-zinc-300">
+              <div className="mt-1 font-mono text-xl sm:text-2xl font-black text-white tracking-wide">{phone.number}</div>
+              <div className="mt-1.5 flex items-center justify-between text-xs text-zinc-300">
                 <span>{cp.duration} <strong>{getPlanLabel(currentPlan.id)}</strong></span>
                 <span>{cp.expires} <strong>{formatDate(new Date(Date.now() + currentPlan.hours * 3600 * 1000).toISOString())}</strong></span>
               </div>
             </div>
 
-            <div className="flex gap-2.5 pt-2">
+            {/* Secret URL Box (Ideal for users who don't want to register) */}
+            <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-yellow-500/5 p-4 text-left">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
+                <Bookmark className="h-4 w-4" />
+                <span>Tu Enlace de Acceso Secreto (Sin registro):</span>
+              </div>
+              <p className="mt-1 text-[11px] text-zinc-300 leading-relaxed">
+                Guarda este enlace. Es tu llave privada para ver tus SMS desde cualquier móvil o navegador cuando quieras:
+              </p>
+              <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-amber-500/30 bg-zinc-950/80 p-2 text-xs">
+                <span className="truncate font-mono text-zinc-300 select-all pr-2">
+                  {typeof window !== "undefined"
+                    ? `${window.location.origin}${localizedPath(`/access/${guestToken}`)}`
+                    : `/access/${guestToken}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = `${window.location.origin}${localizedPath(`/access/${guestToken}`)}`;
+                    navigator.clipboard.writeText(url);
+                    setCopiedField("address");
+                    setTimeout(() => setCopiedField(null), 2500);
+                  }}
+                  className="flex shrink-0 items-center gap-1 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-1 text-[11px] font-bold text-zinc-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
+                >
+                  {copiedField === "address" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copiedField === "address" ? "¡Copiado!" : "Copiar Enlace"}
+                </button>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
               <button
                 type="button"
                 onClick={() => {
                   onClose();
-                  navigate(localizedPath("/dashboard"));
+                  navigate(localizedPath(`/access/${guestToken}`));
                 }}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-teal-500 transition-all"
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-sm font-bold text-white shadow-xl shadow-emerald-500/10 hover:from-emerald-400 hover:to-teal-500 transition-all"
               >
-                {cp.goToDashboard}
+                <MessageSquare className="h-4 w-4" />
+                Ver Mis SMS Entrantes Ahora
                 <ChevronRight className="h-4 w-4" />
               </button>
+
+              {user && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    navigate(localizedPath("/dashboard"));
+                  }}
+                  className="flex items-center justify-center gap-1 rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-xs font-semibold text-zinc-300 hover:text-white transition-colors"
+                >
+                  {cp.goToDashboard}
+                </button>
+              )}
             </div>
           </div>
         )}

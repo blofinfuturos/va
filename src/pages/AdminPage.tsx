@@ -417,9 +417,9 @@ export function AdminPage() {
 
       if (!q) return true;
       const activeRental = activeRentalsMap.get(n.id);
-      const client = activeRental ? userMap.get(activeRental.user_id) : null;
-      const clientEmail = client?.email?.toLowerCase() || "";
-      const userId = activeRental?.user_id?.toLowerCase() || "";
+      const client = activeRental?.user_id ? userMap.get(activeRental.user_id) : null;
+      const clientEmail = (client?.email || activeRental?.guest_email || "").toLowerCase();
+      const userId = (activeRental?.user_id || activeRental?.access_token || "").toLowerCase();
 
       return (
         n.number.toLowerCase().includes(q) ||
@@ -441,8 +441,9 @@ export function AdminPage() {
 
       if (!q) return true;
       const phoneNum = r.phone_numbers?.number || "";
-      const userEmail = userMap.get(r.user_id)?.email || "";
-      return phoneNum.toLowerCase().includes(q) || userEmail.toLowerCase().includes(q);
+      const client = r.user_id ? userMap.get(r.user_id) : null;
+      const userEmail = (client?.email || r.guest_email || r.access_token || "").toLowerCase();
+      return phoneNum.toLowerCase().includes(q) || userEmail.includes(q);
     });
   }, [rentals, rentalSearch, rentalFilter, userMap]);
 
@@ -722,13 +723,13 @@ export function AdminPage() {
                   {Array.from(activeRentalsMap.values())
                     .filter((r) => getRentalTiming(r.expires_at, r.status).isExpiringSoon)
                     .map((r) => {
-                      const client = userMap.get(r.user_id);
+                      const client = r.user_id ? userMap.get(r.user_id) : null;
                       const timing = getRentalTiming(r.expires_at, r.status);
                       return (
                         <div key={r.id} className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-zinc-950/70 p-3">
                           <div>
                             <div className="font-mono text-sm font-bold text-white">{r.phone_numbers?.number}</div>
-                            <div className="text-xs text-zinc-400 truncate max-w-[180px]">{client?.email || r.user_id.slice(0, 8)}</div>
+                            <div className="text-xs text-zinc-400 truncate max-w-[180px]">{client?.email || r.guest_email || (r.user_id ? r.user_id.slice(0, 8) : "Invitado")}</div>
                             <div className="mt-1 text-xs font-semibold text-amber-400">{timing.text}</div>
                           </div>
                           <button
@@ -771,7 +772,7 @@ export function AdminPage() {
                       .slice(0, 4)
                       .map((rental) => {
                         const timing = getRentalTiming(rental.expires_at, rental.status);
-                        const client = userMap.get(rental.user_id);
+                        const client = rental.user_id ? userMap.get(rental.user_id) : null;
                         return (
                           <div
                             key={rental.id}
@@ -788,7 +789,7 @@ export function AdminPage() {
                                   {rental.phone_numbers?.number}
                                 </div>
                                 <div className="text-xs text-zinc-400">
-                                  Cliente: <span className="text-zinc-200">{client?.email || rental.user_id.slice(0, 8)}</span>
+                                  Cliente: <span className="text-zinc-200">{client?.email || rental.guest_email || (rental.user_id ? rental.user_id.slice(0, 8) : "Invitado")}</span>
                                 </div>
                               </div>
                             </div>
@@ -918,7 +919,7 @@ export function AdminPage() {
                   <tbody className="divide-y divide-zinc-800/60">
                     {filteredRentals.map((rental) => {
                       const timing = getRentalTiming(rental.expires_at, rental.status);
-                      const client = userMap.get(rental.user_id);
+                      const client = rental.user_id ? userMap.get(rental.user_id) : null;
                       const phone = rental.phone_numbers;
 
                       return (
@@ -941,12 +942,35 @@ export function AdminPage() {
                           {/* Client */}
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-2">
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-[10px] font-bold text-emerald-400">
-                                {client?.email?.charAt(0).toUpperCase() ?? "U"}
+                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[10px] font-bold text-emerald-400">
+                                {client?.email?.charAt(0).toUpperCase() || rental.guest_email?.charAt(0).toUpperCase() || "I"}
                               </div>
                               <div>
-                                <div className="font-medium text-white">{client?.email ?? rental.user_id}</div>
-                                <div className="text-[11px] text-zinc-500">Saldo: {client?.credits ?? 0} créditos</div>
+                                <div className="font-medium text-white flex items-center gap-1.5">
+                                  <span>{client?.email || rental.guest_email || (rental.access_token ? `Invitado (${rental.access_token.slice(0, 8)})` : "Cliente")}</span>
+                                  {rental.access_token && (
+                                    <span className="rounded bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
+                                      Sin registro
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] text-zinc-500 flex items-center gap-2">
+                                  {rental.access_token ? (
+                                    <button
+                                      onClick={() => {
+                                        const url = `${window.location.origin}/es/access/${rental.access_token}`;
+                                        navigator.clipboard.writeText(url);
+                                        showNotification("success", "URL privada de acceso copiada para enviar al cliente");
+                                      }}
+                                      className="text-amber-400 hover:underline font-medium"
+                                      title="Copiar URL para enviar a soporte"
+                                    >
+                                      Copiar URL de acceso
+                                    </button>
+                                  ) : (
+                                    <span>Saldo: {client?.credits ?? 0} créditos</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -1111,7 +1135,7 @@ export function AdminPage() {
                   <tbody className="divide-y divide-zinc-800/60">
                     {filteredNumbers.map((num) => {
                       const activeRental = activeRentalsMap.get(num.id);
-                      const client = activeRental ? userMap.get(activeRental.user_id) : null;
+                      const client = activeRental?.user_id ? userMap.get(activeRental.user_id) : null;
                       const timing = activeRental ? getRentalTiming(activeRental.expires_at, activeRental.status) : null;
 
                       return (
@@ -1155,14 +1179,14 @@ export function AdminPage() {
                                   <div className="flex items-center gap-1.5">
                                     <span
                                       className="truncate font-semibold text-white text-xs max-w-[170px]"
-                                      title={client?.email || activeRental.user_id}
+                                      title={client?.email || activeRental.guest_email || activeRental.access_token || activeRental.user_id || ""}
                                     >
-                                      {client?.email || "Cliente sin email"}
+                                      {client?.email || activeRental.guest_email || (activeRental.access_token ? `Invitado (${activeRental.access_token.slice(0, 8)})` : "Cliente")}
                                     </span>
-                                    {client?.email && (
+                                    {(client?.email || activeRental.guest_email) && (
                                       <button
                                         onClick={() => {
-                                          navigator.clipboard.writeText(client.email);
+                                          navigator.clipboard.writeText(client?.email || activeRental.guest_email || "");
                                           showNotification("success", "Email copiado al portapapeles");
                                         }}
                                         className="text-zinc-500 hover:text-zinc-200 transition-colors p-0.5"
@@ -1173,9 +1197,25 @@ export function AdminPage() {
                                     )}
                                   </div>
                                   <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-400">
-                                    <span className="text-emerald-400 font-mono font-medium">{client?.credits ?? 0} cr</span>
-                                    <span className="text-zinc-600">•</span>
-                                    <span className="font-mono text-[10px] text-zinc-500">ID: {activeRental.user_id.slice(0, 8)}</span>
+                                    {activeRental.access_token ? (
+                                      <button
+                                        onClick={() => {
+                                          const url = `${window.location.origin}/es/access/${activeRental.access_token}`;
+                                          navigator.clipboard.writeText(url);
+                                          showNotification("success", "Enlace secreto de acceso copiado");
+                                        }}
+                                        className="text-amber-400 hover:underline font-mono text-[10px]"
+                                        title="Copiar enlace secreto del cliente"
+                                      >
+                                        Copiar Enlace Secreto
+                                      </button>
+                                    ) : (
+                                      <>
+                                        <span className="text-emerald-400 font-mono font-medium">{client?.credits ?? 0} cr</span>
+                                        <span className="text-zinc-600">•</span>
+                                        <span className="font-mono text-[10px] text-zinc-500">ID: {activeRental.user_id?.slice(0, 8)}</span>
+                                      </>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -1533,10 +1573,12 @@ export function AdminPage() {
                     </tr>
                   ) : (
                     purchases.map((p) => {
-                      const client = userMap.get(p.user_id);
+                      const client = p.user_id ? userMap.get(p.user_id) : null;
                       return (
                         <tr key={p.id} className="transition-colors hover:bg-zinc-900/50">
-                          <td className="px-4 py-3.5 font-medium text-white">{client?.email ?? p.user_id.slice(0, 8)}</td>
+                          <td className="px-4 py-3.5 font-medium text-white">
+                            {client?.email || p.guest_email || (p.access_token ? `Invitado (${p.access_token.slice(0, 8)})` : (p.user_id ? p.user_id.slice(0, 8) : "Invitado"))}
+                          </td>
                           <td className="px-4 py-3.5 text-zinc-300">
                             {p.type === "credits" ? "Recarga de Créditos" : "Alquiler de Número"}
                           </td>
@@ -1672,7 +1714,7 @@ export function AdminPage() {
               </p>
 
               <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 text-xs">
-                <div className="text-zinc-400">Cliente: <span className="text-white font-medium">{userMap.get(extendRentalItem.user_id)?.email}</span></div>
+                <div className="text-zinc-400">Cliente: <span className="text-white font-medium">{extendRentalItem.user_id ? userMap.get(extendRentalItem.user_id)?.email : (extendRentalItem.guest_email || `Invitado (${extendRentalItem.access_token?.slice(0, 8) || "Sin cuenta"})`)}</span></div>
                 <div className="mt-1 text-zinc-400">Vencimiento actual: <span className="text-white font-medium">{formatDate(extendRentalItem.expires_at)}</span></div>
               </div>
 
