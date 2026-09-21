@@ -4,12 +4,15 @@ import { NumberList } from "@/components/NumberList";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { FAQ } from "@/components/FAQ";
 import { SmsModal } from "@/components/SmsModal";
+import { ActivationSection } from "@/components/ActivationSection";
+import { VerificationModal } from "@/components/VerificationModal";
 import { usePhoneNumbers } from "@/hooks/usePhoneNumbers";
-import type { PhoneNumber } from "@/types";
+import type { PhoneNumber, VerificationService } from "@/types";
 
 export function HomePage() {
   const { numbers, loading } = usePhoneNumbers();
   const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
+  const [verifyService, setVerifyService] = useState<VerificationService | null>(null);
 
   const freeNumbers = numbers.filter((n) => n.type === "free");
   const paidNumbers = numbers.filter((n) => n.type === "paid");
@@ -29,9 +32,15 @@ export function HomePage() {
         loading={loading}
         onViewSms={setSelectedPhone}
       />
+      <ActivationSection onBuy={setVerifyService} />
       <WhyChooseUs />
       <FAQ />
       <SmsModal phone={selectedPhone} onClose={() => setSelectedPhone(null)} />
+      <VerificationModal
+        service={verifyService}
+        isOpen={!!verifyService}
+        onClose={() => setVerifyService(null)}
+      />
     </>
   );
 }
@@ -57,6 +66,7 @@ export function FreeNumbersPage() {
 export function PaidNumbersPage() {
   const { numbers, loading } = usePhoneNumbers();
   const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
+  const [verifyService, setVerifyService] = useState<VerificationService | null>(null);
   const paidNumbers = numbers.filter((n) => n.type === "paid");
 
   return (
@@ -67,7 +77,13 @@ export function PaidNumbersPage() {
         loading={loading}
         onViewSms={setSelectedPhone}
       />
+      <ActivationSection onBuy={setVerifyService} />
       <SmsModal phone={selectedPhone} onClose={() => setSelectedPhone(null)} />
+      <VerificationModal
+        service={verifyService}
+        isOpen={!!verifyService}
+        onClose={() => setVerifyService(null)}
+      />
     </div>
   );
 }

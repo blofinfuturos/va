@@ -10,6 +10,7 @@ import { RegisterPage } from "@/pages/RegisterPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { GuestAccessPage } from "@/pages/GuestAccessPage";
+import { VerifyAccessPage } from "@/pages/VerifyAccessPage";
 
 function ScrollToHash() {
   const location = useLocation();
@@ -43,6 +44,7 @@ function AppRoutes() {
           <Route path="/:lang/admin" element={<AdminPage />} />
           <Route path="/:lang/access/:token" element={<GuestAccessPage />} />
           <Route path="/:lang/rental/:token" element={<GuestAccessPage />} />
+          <Route path="/:lang/verify/:token" element={<VerifyAccessPage />} />
           <Route path="*" element={<Navigate to="/es" replace />} />
         </Routes>
       </main>

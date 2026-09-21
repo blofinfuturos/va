@@ -57,6 +57,40 @@ export type Purchase = {
   user_email?: string;
 };
 
+export type VerificationService = {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  price: number;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
+export type VerificationPurchase = {
+  id: string;
+  service_id: string;
+  phone_number_id: string | null;
+  guest_email: string | null;
+  access_token: string;
+  status: "pending" | "waiting_sms" | "completed" | "expired" | "cancelled";
+  price: number;
+  verification_code: string | null;
+  sms_sender: string | null;
+  sms_message: string | null;
+  sms_received_at: string | null;
+  expires_at: string;
+  created_at: string;
+  service_name?: string;
+  service_icon?: string;
+  service_color?: string;
+  phone_number?: string | null;
+  country_code?: string | null;
+  country_name?: string | null;
+  country_flag?: string | null;
+};
+
 export type Lang = "es" | "en" | "fr" | "de" | "it";
 
 export type RentalPlan = {
