@@ -53,6 +53,54 @@ type Dict = {
     close: string;
     copy: string;
   };
+  verify: {
+    title: string;
+    subtitle: string;
+    badge: string;
+    perService: string;
+    buyBtn: string;
+    selectService: string;
+    instantCode: string;
+    privateAccess: string;
+    noRegistration: string;
+    howItWorks: string;
+    step1: string;
+    step2: string;
+    step3: string;
+    modalTitle: string;
+    modalSubtitle: string;
+    yourEmail: string;
+    emailOptional: string;
+    payBtn: string;
+    processing: string;
+    successTitle: string;
+    successSub: string;
+    yourLink: string;
+    copyLink: string;
+    copied: string;
+    goToVerify: string;
+    saveLinkWarn: string;
+    waitingTitle: string;
+    waitingSub: string;
+    codeReceived: string;
+    codeLabel: string;
+    copyCode: string;
+    noCodeYet: string;
+    noCodeDesc: string;
+    expiresIn: string;
+    expired: string;
+    refresh: string;
+    autoRefresh: string;
+    backHome: string;
+    invalidLink: string;
+    invalidLinkDesc: string;
+    service: string;
+    price: string;
+    status: string;
+    statusWaiting: string;
+    statusCompleted: string;
+    statusExpired: string;
+  };
   why: {
     title: string;
     subtitle: string;
@@ -119,6 +167,54 @@ export const translations: Record<Lang, Dict> = {
       autoRefresh: "Auto-actualización activa",
       close: "Cerrar",
       copy: "Copiar",
+    },
+    verify: {
+      title: "Verificación SMS por Servicio",
+      subtitle: "¿Solo necesitas un código de un servicio concreto? Cómpralo por 0,50€ y recíbelo al instante",
+      badge: "0,50€ por verificación",
+      perService: "por verificación",
+      buyBtn: "Comprar verificación",
+      selectService: "Selecciona el servicio que necesitas verificar",
+      instantCode: "Código instantáneo",
+      privateAccess: "Acceso privado",
+      noRegistration: "Sin registro",
+      howItWorks: "¿Cómo funciona?",
+      step1: "Elige el servicio (Telegram, WhatsApp, Google...) y paga 0,50€",
+      step2: "Recibe tu enlace privado de acceso sin registrarte",
+      step3: "Usa nuestro número en el servicio y recibe el código al instante",
+      modalTitle: "Verificación SMS",
+      modalSubtitle: "Recibe el código de un servicio concreto por solo 0,50€",
+      yourEmail: "Tu correo (opcional, para recibir tu enlace)",
+      emailOptional: "Opcional / Sin registro",
+      payBtn: "Pagar 0,50€ con CoinPayments",
+      processing: "Procesando pago...",
+      successTitle: "¡Tu verificación está lista!",
+      successSub: "Hemos creado tu enlace privado. Úsalo para ver tu código cuando llegue el SMS.",
+      yourLink: "Tu enlace de acceso privado:",
+      copyLink: "Copiar enlace",
+      copied: "¡Copiado!",
+      goToVerify: "Ver mi verificación ahora",
+      saveLinkWarn: "Importante: Guarda este enlace. Sin él no podrás ver tu código. No se puede recuperar.",
+      waitingTitle: "Esperando tu código SMS...",
+      waitingSub: "Usa el número de abajo en el servicio que elegiste. El código aparecerá aquí automáticamente.",
+      codeReceived: "¡Código recibido!",
+      codeLabel: "Tu código de verificación:",
+      copyCode: "Copiar código",
+      noCodeYet: "Aún no se ha recibido el código",
+      noCodeDesc: "Los mensajes aparecerán aquí automáticamente cuando se reciban.",
+      expiresIn: "Expira en",
+      expired: "Expirado",
+      refresh: "Actualizar",
+      autoRefresh: "Auto-actualización activa",
+      backHome: "Volver al inicio",
+      invalidLink: "Enlace no válido",
+      invalidLinkDesc: "El enlace no corresponde a ninguna verificación activa. Comprueba que lo has copiado correctamente.",
+      service: "Servicio",
+      price: "Precio",
+      status: "Estado",
+      statusWaiting: "Esperando SMS",
+      statusCompleted: "Completado",
+      statusExpired: "Expirado",
     },
     why: {
       title: "Por Qué Elegirnos",
@@ -210,6 +306,54 @@ export const translations: Record<Lang, Dict> = {
       close: "Close",
       copy: "Copy",
     },
+    verify: {
+      title: "SMS Verification by Service",
+      subtitle: "Only need a code from one specific service? Get it for €0.50 instantly",
+      badge: "€0.50 per verification",
+      perService: "per verification",
+      buyBtn: "Buy verification",
+      selectService: "Select the service you need to verify",
+      instantCode: "Instant code",
+      privateAccess: "Private access",
+      noRegistration: "No registration",
+      howItWorks: "How it works",
+      step1: "Choose the service (Telegram, WhatsApp, Google...) and pay €0.50",
+      step2: "Get your private access link without registering",
+      step3: "Use our number on the service and receive the code instantly",
+      modalTitle: "SMS Verification",
+      modalSubtitle: "Get a code from a specific service for just €0.50",
+      yourEmail: "Your email (optional, to receive your link)",
+      emailOptional: "Optional / No registration",
+      payBtn: "Pay €0.50 with CoinPayments",
+      processing: "Processing payment...",
+      successTitle: "Your verification is ready!",
+      successSub: "We've created your private link. Use it to see your code when the SMS arrives.",
+      yourLink: "Your private access link:",
+      copyLink: "Copy link",
+      copied: "Copied!",
+      goToVerify: "View my verification now",
+      saveLinkWarn: "Important: Save this link. Without it you can't see your code. It cannot be recovered.",
+      waitingTitle: "Waiting for your SMS code...",
+      waitingSub: "Use the number below on the service you chose. The code will appear here automatically.",
+      codeReceived: "Code received!",
+      codeLabel: "Your verification code:",
+      copyCode: "Copy code",
+      noCodeYet: "No code received yet",
+      noCodeDesc: "Messages will appear here automatically when received.",
+      expiresIn: "Expires in",
+      expired: "Expired",
+      refresh: "Refresh",
+      autoRefresh: "Auto-refresh active",
+      backHome: "Back to home",
+      invalidLink: "Invalid link",
+      invalidLinkDesc: "This link doesn't match any active verification. Make sure you copied it correctly.",
+      service: "Service",
+      price: "Price",
+      status: "Status",
+      statusWaiting: "Waiting for SMS",
+      statusCompleted: "Completed",
+      statusExpired: "Expired",
+    },
     why: {
       title: "Why Choose Us",
       subtitle: "The most reliable platform for receiving SMS online with virtual numbers",
@@ -299,6 +443,54 @@ export const translations: Record<Lang, Dict> = {
       autoRefresh: "Auto-actualisation active",
       close: "Fermer",
       copy: "Copier",
+    },
+    verify: {
+      title: "Vérification SMS par Service",
+      subtitle: "Besoin d'un code d'un service spécifique ? Obtenez-le pour 0,50€ instantanément",
+      badge: "0,50€ par vérification",
+      perService: "par vérification",
+      buyBtn: "Acheter la vérification",
+      selectService: "Sélectionnez le service à vérifier",
+      instantCode: "Code instantané",
+      privateAccess: "Accès privé",
+      noRegistration: "Sans inscription",
+      howItWorks: "Comment ça marche",
+      step1: "Choisissez le service (Telegram, WhatsApp, Google...) et payez 0,50€",
+      step2: "Recevez votre lien d'accès privé sans inscription",
+      step3: "Utilisez notre numéro sur le service et recevez le code instantanément",
+      modalTitle: "Vérification SMS",
+      modalSubtitle: "Recevez le code d'un service spécifique pour seulement 0,50€",
+      yourEmail: "Votre email (optionnel, pour recevoir votre lien)",
+      emailOptional: "Optionnel / Sans inscription",
+      payBtn: "Payer 0,50€ avec CoinPayments",
+      processing: "Traitement du paiement...",
+      successTitle: "Votre vérification est prête !",
+      successSub: "Nous avons créé votre lien privé. Utilisez-le pour voir votre code quand le SMS arrive.",
+      yourLink: "Votre lien d'accès privé :",
+      copyLink: "Copier le lien",
+      copied: "Copié !",
+      goToVerify: "Voir ma vérification maintenant",
+      saveLinkWarn: "Important : Sauvegardez ce lien. Sans lui, vous ne pouvez pas voir votre code. Il ne peut pas être récupéré.",
+      waitingTitle: "En attente de votre code SMS...",
+      waitingSub: "Utilisez le numéro ci-dessous sur le service choisi. Le code apparaîtra ici automatiquement.",
+      codeReceived: "Code reçu !",
+      codeLabel: "Votre code de vérification :",
+      copyCode: "Copier le code",
+      noCodeYet: "Aucun code reçu pour le moment",
+      noCodeDesc: "Les messages apparaîtront ici automatiquement dès réception.",
+      expiresIn: "Expire dans",
+      expired: "Expiré",
+      refresh: "Actualiser",
+      autoRefresh: "Auto-actualisation active",
+      backHome: "Retour à l'accueil",
+      invalidLink: "Lien non valide",
+      invalidLinkDesc: "Ce lien ne correspond à aucune vérification active. Vérifiez que vous l'avez bien copié.",
+      service: "Service",
+      price: "Prix",
+      status: "Statut",
+      statusWaiting: "En attente SMS",
+      statusCompleted: "Complété",
+      statusExpired: "Expiré",
     },
     why: {
       title: "Pourquoi Nous Choisir",
@@ -479,6 +671,54 @@ export const translations: Record<Lang, Dict> = {
       autoRefresh: "Auto-aggiornamento attivo",
       close: "Chiudi",
       copy: "Copia",
+    },
+    verify: {
+      title: "Verifica SMS per Servizio",
+      subtitle: "Hai bisogno solo del codice di un servizio specifico? Ottienilo per 0,50€ istantaneamente",
+      badge: "0,50€ per verifica",
+      perService: "per verifica",
+      buyBtn: "Acquista verifica",
+      selectService: "Seleziona il servizio da verificare",
+      instantCode: "Codice istantaneo",
+      privateAccess: "Accesso privato",
+      noRegistration: "Senza registrazione",
+      howItWorks: "Come funziona",
+      step1: "Scegli il servizio (Telegram, WhatsApp, Google...) e paga 0,50€",
+      step2: "Ricevi il tuo link di accesso privato senza registrazione",
+      step3: "Usa il nostro numero sul servizio e ricevi il codice istantaneamente",
+      modalTitle: "Verifica SMS",
+      modalSubtitle: "Ricevi il codice di un servizio specifico per solo 0,50€",
+      yourEmail: "La tua email (opzionale, per ricevere il link)",
+      emailOptional: "Opzionale / Senza registrazione",
+      payBtn: "Paga 0,50€ con CoinPayments",
+      processing: "Elaborazione pagamento...",
+      successTitle: "La tua verifica è pronta!",
+      successSub: "Abbiamo creato il tuo link privato. Usalo per vedere il tuo codice quando arriva l'SMS.",
+      yourLink: "Il tuo link di accesso privato:",
+      copyLink: "Copia link",
+      copied: "Copiato!",
+      goToVerify: "Vedi la mia verifica ora",
+      saveLinkWarn: "Importante: Salva questo link. Senza di esso non puoi vedere il tuo codice. Non può essere recuperato.",
+      waitingTitle: "In attesa del tuo codice SMS...",
+      waitingSub: "Usa il numero qui sotto sul servizio scelto. Il codice apparirà qui automaticamente.",
+      codeReceived: "Codice ricevuto!",
+      codeLabel: "Il tuo codice di verifica:",
+      copyCode: "Copia codice",
+      noCodeYet: "Nessun codice ricevuto ancora",
+      noCodeDesc: "I messaggi appariranno qui automaticamente quando ricevuti.",
+      expiresIn: "Scade tra",
+      expired: "Scaduto",
+      refresh: "Aggiorna",
+      autoRefresh: "Auto-aggiornamento attivo",
+      backHome: "Torna alla home",
+      invalidLink: "Link non valido",
+      invalidLinkDesc: "Questo link non corrisponde a nessuna verifica attiva. Verifica di averlo copiato correttamente.",
+      service: "Servizio",
+      price: "Prezzo",
+      status: "Stato",
+      statusWaiting: "In attesa SMS",
+      statusCompleted: "Completato",
+      statusExpired: "Scaduto",
     },
     why: {
       title: "Perché Sceglierci",
