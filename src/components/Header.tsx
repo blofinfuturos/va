@@ -26,6 +26,7 @@ export function Header() {
     { label: t.nav.home, href: localizedPath("/") },
     { label: t.nav.freeNumbers, href: localizedPath("/free") },
     { label: t.nav.paidNumbers, href: localizedPath("/paid") },
+    { label: t.nav.verify, href: localizedPath("/verify") },
     { label: t.nav.whyUs, href: localizedPath("/#why") },
     { label: t.nav.faq, href: localizedPath("/#faq") },
   ];

@@ -11,6 +11,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { GuestAccessPage } from "@/pages/GuestAccessPage";
 import { VerifyAccessPage } from "@/pages/VerifyAccessPage";
+import { VerificationPage } from "@/pages/VerificationPage";
 
 function ScrollToHash() {
   const location = useLocation();
@@ -38,6 +39,7 @@ function AppRoutes() {
           <Route path="/:lang" element={<HomePage />} />
           <Route path="/:lang/free" element={<FreeNumbersPage />} />
           <Route path="/:lang/paid" element={<PaidNumbersPage />} />
+          <Route path="/:lang/verify" element={<VerificationPage />} />
           <Route path="/:lang/login" element={<LoginPage />} />
           <Route path="/:lang/register" element={<RegisterPage />} />
           <Route path="/:lang/dashboard" element={<DashboardPage />} />

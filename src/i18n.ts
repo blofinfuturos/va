@@ -9,7 +9,7 @@ export const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
 ];
 
 type Dict = {
-  nav: { home: string; freeNumbers: string; paidNumbers: string; whyUs: string; faq: string };
+  nav: { home: string; freeNumbers: string; paidNumbers: string; verify: string; whyUs: string; faq: string };
   hero: {
     badge: string;
     title: string;
@@ -124,7 +124,7 @@ type Dict = {
 
 export const translations: Record<Lang, Dict> = {
   es: {
-    nav: { home: "Inicio", freeNumbers: "Números Gratis", paidNumbers: "Números Premium", whyUs: "Por Qué Elegirnos", faq: "FAQ" },
+    nav: { home: "Inicio", freeNumbers: "Números Gratis", paidNumbers: "Números Premium", verify: "Verificación SMS", whyUs: "Por Qué Elegirnos", faq: "FAQ" },
     hero: {
       badge: "Recibe SMS online al instante",
       title: "Tu número de teléfono virtual para",
@@ -248,6 +248,7 @@ export const translations: Record<Lang, Dict> = {
       links: [
         { label: "Números Gratis", href: "/free" },
         { label: "Números Premium", href: "/paid" },
+        { label: "Verificación SMS", href: "/verify" },
         { label: "Por Qué Elegirnos", href: "/#why" },
         { label: "Preguntas Frecuentes", href: "/#faq" },
       ],
@@ -262,7 +263,7 @@ export const translations: Record<Lang, Dict> = {
     },
   },
   en: {
-    nav: { home: "Home", freeNumbers: "Free Numbers", paidNumbers: "Premium Numbers", whyUs: "Why Choose Us", faq: "FAQ" },
+    nav: { home: "Home", freeNumbers: "Free Numbers", paidNumbers: "Premium Numbers", verify: "SMS Verification", whyUs: "Why Choose Us", faq: "FAQ" },
     hero: {
       badge: "Receive SMS online instantly",
       title: "Your virtual phone number to",
@@ -386,6 +387,7 @@ export const translations: Record<Lang, Dict> = {
       links: [
         { label: "Free Numbers", href: "/free" },
         { label: "Premium Numbers", href: "/paid" },
+        { label: "SMS Verification", href: "/verify" },
         { label: "Why Choose Us", href: "/#why" },
         { label: "FAQ", href: "/#faq" },
       ],
@@ -400,7 +402,7 @@ export const translations: Record<Lang, Dict> = {
     },
   },
   fr: {
-    nav: { home: "Accueil", freeNumbers: "Numéros Gratuits", paidNumbers: "Numéros Premium", whyUs: "Pourquoi Nous", faq: "FAQ" },
+    nav: { home: "Accueil", freeNumbers: "Numéros Gratuits", paidNumbers: "Numéros Premium", verify: "Vérification SMS", whyUs: "Pourquoi Nous", faq: "FAQ" },
     hero: {
       badge: "Recevez des SMS en ligne instantanément",
       title: "Votre numéro de téléphone virtuel pour",
@@ -524,6 +526,7 @@ export const translations: Record<Lang, Dict> = {
       links: [
         { label: "Numéros Gratuits", href: "/free" },
         { label: "Numéros Premium", href: "/paid" },
+        { label: "Vérification SMS", href: "/verify" },
         { label: "Pourquoi Nous", href: "/#why" },
         { label: "FAQ", href: "/#faq" },
       ],
@@ -538,7 +541,7 @@ export const translations: Record<Lang, Dict> = {
     },
   },
   de: {
-    nav: { home: "Startseite", freeNumbers: "Kostenlose Nummern", paidNumbers: "Premium Nummern", whyUs: "Warum Wir", faq: "FAQ" },
+    nav: { home: "Startseite", freeNumbers: "Kostenlose Nummern", paidNumbers: "Premium Nummern", verify: "SMS-Verifizierung", whyUs: "Warum Wir", faq: "FAQ" },
     hero: {
       badge: "SMS online sofort empfangen",
       title: "Deine virtuelle Telefonnummer zum",
@@ -614,6 +617,7 @@ export const translations: Record<Lang, Dict> = {
       links: [
         { label: "Kostenlose Nummern", href: "/free" },
         { label: "Premium Nummern", href: "/paid" },
+        { label: "SMS-Verifizierung", href: "/verify" },
         { label: "Warum Wir", href: "/#why" },
         { label: "FAQ", href: "/#faq" },
       ],
@@ -628,7 +632,7 @@ export const translations: Record<Lang, Dict> = {
     },
   },
   it: {
-    nav: { home: "Home", freeNumbers: "Numeri Gratis", paidNumbers: "Numeri Premium", whyUs: "Perché Noi", faq: "FAQ" },
+    nav: { home: "Home", freeNumbers: "Numeri Gratis", paidNumbers: "Numeri Premium", verify: "Verifica SMS", whyUs: "Perché Noi", faq: "FAQ" },
     hero: {
       badge: "Ricevi SMS online istantaneamente",
       title: "Il tuo numero di telefono virtuale per",
@@ -752,6 +756,7 @@ export const translations: Record<Lang, Dict> = {
       links: [
         { label: "Numeri Gratis", href: "/free" },
         { label: "Numeri Premium", href: "/paid" },
+        { label: "Verifica SMS", href: "/verify" },
         { label: "Perché Noi", href: "/#why" },
         { label: "FAQ", href: "/#faq" },
       ],
