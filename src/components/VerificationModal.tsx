@@ -25,9 +25,11 @@ type VerificationModalProps = {
   service: VerificationService | null;
   isOpen: boolean;
   onClose: () => void;
+  countryCode?: string;
+  countryPrice?: number;
 };
 
-export function VerificationModal({ service, isOpen, onClose }: VerificationModalProps) {
+export function VerificationModal({ service, isOpen, onClose, countryCode, countryPrice }: VerificationModalProps) {
   const { user } = useAuth();
   const { t, localizedPath } = useLang();
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ export function VerificationModal({ service, isOpen, onClose }: VerificationModa
       const { data, error } = await supabase.rpc("create_verification_purchase", {
         p_service_id: service.id,
         p_guest_email: buyerEmail.trim() || null,
-        p_price: service.price,
+        p_price: countryPrice ?? service.price,
       });
 
       if (error) throw error;
@@ -138,7 +140,7 @@ export function VerificationModal({ service, isOpen, onClose }: VerificationModa
           <div className="text-right">
             <div className="text-xs text-zinc-400">{tv.price}</div>
             <div className="text-lg font-black text-blue-400">
-              {service.price.toFixed(2)} €
+              {(countryPrice ?? service.price).toFixed(2)} €
             </div>
           </div>
         </div>

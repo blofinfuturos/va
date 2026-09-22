@@ -13,6 +13,8 @@ export function HomePage() {
   const { numbers, loading } = usePhoneNumbers();
   const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
   const [verifyService, setVerifyService] = useState<VerificationService | null>(null);
+  const [verifyCountry, setVerifyCountry] = useState<string | undefined>(undefined);
+  const [verifyPrice, setVerifyPrice] = useState<number | undefined>(undefined);
 
   const freeNumbers = numbers.filter((n) => n.type === "free");
   const paidNumbers = numbers.filter((n) => n.type === "paid");
@@ -32,7 +34,13 @@ export function HomePage() {
         loading={loading}
         onViewSms={setSelectedPhone}
       />
-      <ActivationSection onBuy={setVerifyService} />
+      <ActivationSection
+        onBuy={(svc, cc, price) => {
+          setVerifyService(svc);
+          setVerifyCountry(cc);
+          setVerifyPrice(price);
+        }}
+      />
       <WhyChooseUs />
       <FAQ />
       <SmsModal phone={selectedPhone} onClose={() => setSelectedPhone(null)} />
@@ -40,6 +48,8 @@ export function HomePage() {
         service={verifyService}
         isOpen={!!verifyService}
         onClose={() => setVerifyService(null)}
+        countryCode={verifyCountry}
+        countryPrice={verifyPrice}
       />
     </>
   );
@@ -66,7 +76,6 @@ export function FreeNumbersPage() {
 export function PaidNumbersPage() {
   const { numbers, loading } = usePhoneNumbers();
   const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
-  const [verifyService, setVerifyService] = useState<VerificationService | null>(null);
   const paidNumbers = numbers.filter((n) => n.type === "paid");
 
   return (
@@ -77,13 +86,7 @@ export function PaidNumbersPage() {
         loading={loading}
         onViewSms={setSelectedPhone}
       />
-      <ActivationSection onBuy={setVerifyService} />
       <SmsModal phone={selectedPhone} onClose={() => setSelectedPhone(null)} />
-      <VerificationModal
-        service={verifyService}
-        isOpen={!!verifyService}
-        onClose={() => setVerifyService(null)}
-      />
     </div>
   );
 }
