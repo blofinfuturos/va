@@ -22,7 +22,13 @@ export function Header() {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  const navItems = [
+  const desktopNav = [
+    { label: t.nav.freeNumbers, href: localizedPath("/free") },
+    { label: t.nav.paidNumbers, href: localizedPath("/paid") },
+    { label: t.nav.verify, href: localizedPath("/verify") },
+  ];
+
+  const mobileNav = [
     { label: t.nav.home, href: localizedPath("/") },
     { label: t.nav.freeNumbers, href: localizedPath("/free") },
     { label: t.nav.paidNumbers, href: localizedPath("/paid") },
@@ -62,7 +68,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 xl:flex">
-          {navItems.map((item) => (
+          {desktopNav.map((item) => (
             <Link
               key={item.href}
               to={item.href}
@@ -142,7 +148,7 @@ export function Header() {
       {menuOpen && (
         <div className="border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl xl:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col px-4 py-3 sm:px-6">
-            {navItems.map((item) => (
+            {mobileNav.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
