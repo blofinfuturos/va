@@ -24,7 +24,7 @@ import {
 import { useLang } from "@/LanguageContext";
 import { supabase } from "@/supabaseClient";
 import type { VerificationService } from "@/types";
-import { PhoneCountryFlag } from "./CountryFlag";
+import { CountryFlag } from "./CountryFlag";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Send,
@@ -168,10 +168,10 @@ export function ActivationSection({ onBuy }: ActivationSectionProps) {
               <span className="flex items-center gap-2">
                 {selectedCountryData ? (
                   <>
-                    <PhoneCountryFlag
+                    <CountryFlag
                       countryCode={selectedCountryData.country_code}
-                      flag={selectedCountryData.country_flag}
-                      className="text-lg"
+                      countryName={selectedCountryData.country_name}
+                      className="h-5 w-5"
                     />
                     <span>{selectedCountryData.country_name}</span>
                   </>
@@ -243,10 +243,10 @@ export function ActivationSection({ onBuy }: ActivationSectionProps) {
                             : "text-zinc-300 hover:bg-zinc-800/60"
                         }`}
                       >
-                        <PhoneCountryFlag
+                        <CountryFlag
                           countryCode={c.country_code}
-                          flag={c.country_flag}
-                          className="text-lg"
+                          countryName={c.country_name}
+                          className="h-5 w-5"
                         />
                         <span>{c.country_name}</span>
                         <span className="ml-auto text-xs text-zinc-500">
