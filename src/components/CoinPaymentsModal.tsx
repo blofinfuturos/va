@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Bookmark,
   MessageSquare,
+  Hourglass,
 } from "lucide-react";
 import { useAuth } from "@/AuthContext";
 import { useLang } from "@/LanguageContext";
@@ -131,7 +132,7 @@ export function CoinPaymentsModal({
   const [buyerEmail, setBuyerEmail] = useState("");
   const [guestToken, setGuestToken] = useState<string>("");
 
-  const [step, setStep] = useState<"config" | "invoice" | "verifying" | "success">("config");
+  const [step, setStep] = useState<"config" | "invoice" | "verifying" | "pending" | "success">("config");
   const [copiedField, setCopiedField] = useState<"address" | "amount" | null>(null);
   const [timeLeft, setTimeLeft] = useState(3599); // 60 minutes
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -205,74 +206,36 @@ export function CoinPaymentsModal({
     setStep("verifying");
     setErrorMsg(null);
 
-    // Simulate blockchain verification check from CoinPayments gateway
-    setTimeout(async () => {
-      try {
-        const userId = user?.id || null;
-        const expiresAt = new Date(Date.now() + currentPlan.hours * 3600 * 1000).toISOString();
-        const tokenToUse =
-          guestToken ||
-          "gs_" +
-            Math.random().toString(36).substring(2, 10) +
-            Date.now().toString(36) +
-            Math.random().toString(36).substring(2, 8);
-        setGuestToken(tokenToUse);
+    try {
+      const userId = user?.id || null;
+      const tokenToUse =
+        guestToken ||
+        "gs_" +
+          Math.random().toString(36).substring(2, 10) +
+          Date.now().toString(36) +
+          Math.random().toString(36).substring(2, 8);
+      setGuestToken(tokenToUse);
 
-        // 1. Create or ensure rental in Supabase
-        const rentalPayload: any = {
-          phone_number_id: phone.id,
-          duration_hours: currentPlan.hours,
-          price: currentPlan.priceEur,
-          status: "active",
-          expires_at: expiresAt,
-          access_token: tokenToUse,
-          guest_email: user?.email || buyerEmail.trim() || null,
-        };
-        if (userId) {
-          rentalPayload.user_id = userId;
-        }
-
-        const { data: insertedRental } = await supabase
-          .from("premium_number_rentals")
-          .insert(rentalPayload)
-          .select("*, phone_numbers(*)")
-          .maybeSingle();
-
-        // Local storage backup for immediate zero-friction access
-        const fullRentalData = insertedRental || {
-          ...rentalPayload,
-          id: tokenToUse,
-          phone_numbers: phone,
-          created_at: new Date().toISOString(),
-        };
-        localStorage.setItem(`ghostsms_guest_${tokenToUse}`, JSON.stringify(fullRentalData));
-
-        // 2. Record purchase in purchases table
-        const purchasePayload: any = {
-          phone_number_id: phone.id,
-          type: "number_rental",
-          amount: currentPlan.priceEur,
-          credits_purchased: 0,
-          status: "completed",
-          access_token: tokenToUse,
-          guest_email: user?.email || buyerEmail.trim() || null,
-        };
-        if (userId) {
-          purchasePayload.user_id = userId;
-        }
-        await supabase.from("purchases").insert(purchasePayload);
-
-        if (userId) {
-          await refreshProfile();
-        }
-
-        setStep("success");
-        if (onSuccess) onSuccess();
-      } catch (err: any) {
-        console.error("Error creating rental:", err);
-        setStep("success");
+      const purchasePayload: any = {
+        phone_number_id: phone.id,
+        type: "number_rental",
+        amount: currentPlan.priceEur,
+        credits_purchased: 0,
+        status: "pending",
+        access_token: tokenToUse,
+        guest_email: user?.email || buyerEmail.trim() || null,
+      };
+      if (userId) {
+        purchasePayload.user_id = userId;
       }
-    }, 2400);
+      await supabase.from("purchases").insert(purchasePayload);
+
+      setStep("pending");
+    } catch (err: any) {
+      console.error("Error creating pending purchase:", err);
+      setErrorMsg(err.message || "Error al crear el pedido");
+      setStep("invoice");
+    }
   };
 
   const handlePayWithCredits = async () => {
@@ -722,6 +685,45 @@ export function CoinPaymentsModal({
                   .replace("{crypto}", currentCrypto.symbol)}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* STEP 3.5: PENDING */}
+        {step === "pending" && (
+          <div className="py-6 text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
+              <Hourglass className="h-7 w-7" />
+            </div>
+
+            <div>
+              <h4 className="text-lg font-bold text-white">{cp.pendingTitle}</h4>
+              <p className="mt-1 text-xs text-zinc-400 max-w-sm mx-auto">
+                {cp.pendingSub}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3.5 text-left">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-zinc-400">{cp.pendingOrderLabel}</span>
+                <span className="font-mono font-bold text-white">{orderId}</span>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-xs">
+                <span className="text-zinc-400">{cp.price}</span>
+                <span className="font-bold text-amber-400">{currentPlan.priceEur.toFixed(2)} €</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-500 leading-relaxed max-w-sm mx-auto">
+              {cp.pendingHelpText}
+            </p>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-zinc-700 bg-zinc-900 py-3 text-sm font-bold text-zinc-200 hover:border-zinc-600 hover:text-white transition-all"
+            >
+              {cp.backBtn}
+            </button>
           </div>
         )}
 

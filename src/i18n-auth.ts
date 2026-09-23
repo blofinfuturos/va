@@ -178,6 +178,10 @@ export type AuthDict = {
     backBtn: string;
     verifyingTitle: string;
     verifyingSub: string;
+    pendingTitle: string;
+    pendingSub: string;
+    pendingOrderLabel: string;
+    pendingHelpText: string;
     successTitle: string;
     successSub: string;
     activeNumber: string;
@@ -371,6 +375,10 @@ export const authTranslations: Record<Lang, AuthDict> = {
       backBtn: "← Volver y cambiar criptomoneda o duración",
       verifyingTitle: "Verificando transacción en CoinPayments...",
       verifyingSub: "Escaneando la red blockchain y confirmando el depósito de {amount} {crypto}...",
+      pendingTitle: "Pago pendiente de verificación",
+      pendingSub: "Hemos registrado tu pedido. Tu pago está siendo verificado en la red blockchain.",
+      pendingOrderLabel: "Pedido:",
+      pendingHelpText: "En cuanto se confirme tu pago en la red, tu número será activado automáticamente. No es necesario que hagas nada más. Este proceso puede tardar unos minutos.",
       successTitle: "¡Pago Verificado con Éxito!",
       successSub: "Tu número exclusivo ha sido asignado y reservado para tu uso personal.",
       activeNumber: "Número Premium Activo:",
@@ -562,6 +570,10 @@ export const authTranslations: Record<Lang, AuthDict> = {
       backBtn: "← Go back and change crypto or duration",
       verifyingTitle: "Verifying transaction on CoinPayments...",
       verifyingSub: "Scanning blockchain and verifying deposit of {amount} {crypto}...",
+      pendingTitle: "Payment pending verification",
+      pendingSub: "We have registered your order. Your payment is being verified on the blockchain network.",
+      pendingOrderLabel: "Order:",
+      pendingHelpText: "Once your payment is confirmed on the network, your number will be activated automatically. You don't need to do anything else. This process may take a few minutes.",
       successTitle: "Payment Verified Successfully!",
       successSub: "Your exclusive number has been allocated and reserved for your personal use.",
       activeNumber: "Active Premium Number:",
@@ -753,6 +765,10 @@ export const authTranslations: Record<Lang, AuthDict> = {
       backBtn: "← Retour pour changer de devise ou de durée",
       verifyingTitle: "Vérification de la transaction sur CoinPayments...",
       verifyingSub: "Analyse de la blockchain et confirmation du dépôt de {amount} {crypto}...",
+      pendingTitle: "Paiement en attente de vérification",
+      pendingSub: "Nous avons enregistré votre commande. Votre paiement est en cours de vérification sur la blockchain.",
+      pendingOrderLabel: "Commande :",
+      pendingHelpText: "Dès que votre paiement sera confirmé sur le réseau, votre numéro sera activé automatiquement. Vous n'avez rien d'autre à faire. Ce processus peut prendre quelques minutes.",
       successTitle: "Paiement Vérifié avec Succès !",
       successSub: "Votre numéro exclusif vous a été attribué et réservé pour votre usage personnel.",
       activeNumber: "Numéro Premium Actif :",
@@ -944,6 +960,10 @@ export const authTranslations: Record<Lang, AuthDict> = {
       backBtn: "← Zurück zur Auswahl der Währung oder Dauer",
       verifyingTitle: "Transaktion bei CoinPayments wird geprüft...",
       verifyingSub: "Blockchain-Scan und Bestätigung der Einzahlung von {amount} {crypto}...",
+      pendingTitle: "Zahlung ausstehend",
+      pendingSub: "Wir haben Ihre Bestellung registriert. Ihre Zahlung wird auf der Blockchain überprüft.",
+      pendingOrderLabel: "Bestellung:",
+      pendingHelpText: "Sobald Ihre Zahlung im Netzwerk bestätigt ist, wird Ihre Nummer automatisch aktiviert. Sie müssen nichts weiter tun. Dieser Vorgang kann einige Minuten dauern.",
       successTitle: "Zahlung erfolgreich verifiziert!",
       successSub: "Ihre exklusive Nummer wurde für Ihre persönliche Nutzung reserviert und aktiviert.",
       activeNumber: "Aktive Premium-Nummer:",
@@ -1135,6 +1155,10 @@ export const authTranslations: Record<Lang, AuthDict> = {
       backBtn: "← Torna indietro e cambia valuta o durata",
       verifyingTitle: "Verifica della transazione su CoinPayments...",
       verifyingSub: "Scansione blockchain e conferma del deposito di {amount} {crypto}...",
+      pendingTitle: "Pagamento in attesa di verifica",
+      pendingSub: "Abbiamo registrato il tuo ordine. Il tuo pagamento è in fase di verifica sulla blockchain.",
+      pendingOrderLabel: "Ordine:",
+      pendingHelpText: "Non appena il tuo pagamento sarà confermato sulla rete, il tuo numero verrà attivato automaticamente. Non devi fare altro. Questo processo può richiedere alcuni minuti.",
       successTitle: "Pagamento Verificato con Successo!",
       successSub: "Il tuo numero esclusivo è stato assegnato e riservato per il tuo uso personale.",
       activeNumber: "Numero Premium Attivo:",
