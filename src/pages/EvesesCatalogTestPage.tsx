@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -55,13 +55,6 @@ export function EvesesCatalogTestPage() {
     setLoading(true);
     setResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke("eveses-catalog", {
-        method: "GET",
-        headers: action !== "all" ? { "X-Action": action } : undefined,
-      });
-
-      // The function reads action from query params, but supabase.functions.invoke
-      // doesn't support query params well. Let's use a direct fetch instead.
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/eveses-catalog?action=${action}`;
       const res = await fetch(url, {
         method: "GET",
