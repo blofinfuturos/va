@@ -10,6 +10,7 @@ import { RegisterPage } from "@/pages/RegisterPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { GuestAccessPage } from "@/pages/GuestAccessPage";
+import { EvesesTestPage } from "@/pages/EvesesTestPage";
 
 function ScrollToHash() {
   const location = useLocation();
@@ -43,6 +44,7 @@ function AppRoutes() {
           <Route path="/:lang/admin" element={<AdminPage />} />
           <Route path="/:lang/access/:token" element={<GuestAccessPage />} />
           <Route path="/:lang/rental/:token" element={<GuestAccessPage />} />
+          <Route path="/:lang/eveses-test" element={<EvesesTestPage />} />
           <Route path="*" element={<Navigate to="/es" replace />} />
         </Routes>
       </main>

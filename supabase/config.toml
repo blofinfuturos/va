@@ -1,0 +1,2 @@
+[functions.eveses-test]
+verify_jwt = false
