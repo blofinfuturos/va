@@ -25,31 +25,15 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "all";
     const country = url.searchParams.get("country");
-    const service = url.searchParams.get("service");
-
-    const authHeaders: Record<string, string> = {
-      "Authorization": `Bearer ${apiKey}`,
-      "Accept": "application/json",
-    };
 
     const baseUrl = "https://api.eveses.com";
 
-    // Helper: try native REST API first, fall back to sms-activate compatible gateway
-    async function tryFetch(path: string): Promise<{ ok: boolean; status: number; data: unknown; raw: string }> {
-      const res = await fetch(`${baseUrl}${path}`, { headers: authHeaders });
-      const text = await res.text();
-      let parsed: unknown = null;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        parsed = text;
-      }
-      return { ok: res.ok, status: res.status, data: parsed, raw: text };
-    }
-
-    async function tryGateway(actionName: string, extraParams: string = ""): Promise<{ ok: boolean; status: number; data: unknown; raw: string }> {
-      const url2 = `${baseUrl}/stubs/handler_api.php?api_key=${encodeURIComponent(apiKey)}&action=${actionName}${extraParams}`;
-      const res = await fetch(url2, { headers: { "Accept": "application/json" } });
+    async function gateway(
+      actionName: string,
+      extraParams: string = ""
+    ): Promise<{ ok: boolean; status: number; data: unknown; raw: string }> {
+      const gwUrl = `${baseUrl}/api/gateway/sms-activate?api_key=${encodeURIComponent(apiKey)}&action=${actionName}${extraParams}`;
+      const res = await fetch(gwUrl, { headers: { Accept: "application/json" } });
       const text = await res.text();
       let parsed: unknown = null;
       try {
@@ -62,114 +46,62 @@ Deno.serve(async (req: Request) => {
 
     const result: Record<string, unknown> = { success: true, queries: {} };
 
-    // 1. Countries — try native first, then gateway
+    // 1. Countries — gateway getCountries
     if (action === "all" || action === "countries") {
-      let countriesResult;
-      // Try native REST endpoint
-      countriesResult = await tryFetch("/api/v1/countries");
-      if (!countriesResult.ok) {
-        // Try gateway
-        countriesResult = await tryGateway("getCountries");
-      }
+      const r = await gateway("getCountries");
       (result.queries as Record<string, unknown>).countries = {
-        httpStatus: countriesResult.status,
-        ok: countriesResult.ok,
-        data: countriesResult.data,
-        raw: countriesResult.raw.substring(0, 500),
+        httpStatus: r.status,
+        ok: r.ok,
+        data: r.data,
+        raw: r.raw.substring(0, 1000),
       };
     }
 
-    // 2. Services — try native, then gateway
-    if (action === "all" || action === "services") {
-      let servicesResult;
-      servicesResult = await tryFetch("/api/v1/services");
-      if (!servicesResult.ok) {
-        servicesResult = await tryGateway("getServices");
-      }
-      (result.queries as Record<string, unknown>).services = {
-        httpStatus: servicesResult.status,
-        ok: servicesResult.ok,
-        data: servicesResult.data,
-        raw: servicesResult.raw.substring(0, 500),
-      };
-    }
-
-    // 3. Prices — try native, then gateway
+    // 2. Prices — gateway getPrices (optional country + service filters)
     if (action === "all" || action === "prices") {
-      let pricesResult;
-      const nativePath = country
-        ? `/api/v1/prices?country=${encodeURIComponent(country)}${service ? `&service=${encodeURIComponent(service)}` : ""}`
-        : `/api/v1/prices`;
-      pricesResult = await tryFetch(nativePath);
-      if (!pricesResult.ok) {
-        const gatewayParams = country ? `&country=${encodeURIComponent(country)}` : "";
-        const serviceParams = service ? `&service=${encodeURIComponent(service)}` : "";
-        pricesResult = await tryGateway("getPrices", gatewayParams + serviceParams);
-      }
+      const params = country ? `&country=${encodeURIComponent(country)}` : "";
+      const r = await gateway("getPrices", params);
       (result.queries as Record<string, unknown>).prices = {
-        httpStatus: pricesResult.status,
-        ok: pricesResult.ok,
-        data: pricesResult.data,
-        raw: pricesResult.raw.substring(0, 500),
+        httpStatus: r.status,
+        ok: r.ok,
+        data: r.data,
+        raw: r.raw.substring(0, 2000),
       };
     }
 
-    // 4. Stock / Numbers status — gateway getNumbersStatus
+    // 3. Stock — gateway getNumbersStatus (country is required)
     if (action === "all" || action === "stock") {
-      let stockResult;
-      const nativePath = country ? `/api/v1/numbers/status?country=${encodeURIComponent(country)}` : "/api/v1/numbers/status";
-      stockResult = await tryFetch(nativePath);
-      if (!stockResult.ok) {
-        const gatewayParams = country ? `&country=${encodeURIComponent(country)}` : "";
-        stockResult = await tryGateway("getNumbersStatus", gatewayParams);
-      }
+      // If no country specified, try country=0 (RU) as a default to get something
+      const stockCountry = country || "0";
+      const r = await gateway("getNumbersStatus", `&country=${encodeURIComponent(stockCountry)}`);
       (result.queries as Record<string, unknown>).stock = {
-        httpStatus: stockResult.status,
-        ok: stockResult.ok,
-        data: stockResult.data,
-        raw: stockResult.raw.substring(0, 500),
+        httpStatus: r.status,
+        ok: r.ok,
+        data: r.data,
+        raw: r.raw.substring(0, 2000),
+        queriedCountry: stockCountry,
       };
     }
 
-    // 5. Rental durations — from docs: 60, 240, 1440, 10080, 43200 minutes
-    // The API may have an endpoint to query available durations; try native first
-    if (action === "all" || action === "rentals") {
-      let rentalsResult;
-      // Try rental catalog/pricing endpoint
-      const rentalPath = country
-        ? `/api/v1/rentals/prices?country=${encodeURIComponent(country)}${service ? `&service=${encodeURIComponent(service)}` : ""}`
-        : "/api/v1/rentals/prices";
-      rentalsResult = await tryFetch(rentalPath);
-      if (!rentalsResult.ok) {
-        // Try alternative path
-        rentalsResult = await tryFetch("/api/v1/rentals/catalog");
-      }
-      (result.queries as Record<string, unknown>).rentals = {
-        httpStatus: rentalsResult.status,
-        ok: rentalsResult.ok,
-        data: rentalsResult.data,
-        raw: rentalsResult.raw.substring(0, 500),
-        // Known durations from docs: 60, 240, 1440, 10080, 43200 minutes
-        documentedDurations: [
-          { minutes: 60, label: "1 hour" },
-          { minutes: 240, label: "4 hours" },
-          { minutes: 1440, label: "24 hours / 1 day" },
-          { minutes: 10080, label: "7 days / 1 week" },
-          { minutes: 43200, label: "30 days / 1 month" },
-        ],
-        renewableFromDocs: true,
-      };
-    }
-
-    // 6. Operators (may give stock/availability info)
+    // 4. Operators — gateway getOperators
     if (action === "all" || action === "operators") {
-      let operatorsResult;
-      operatorsResult = await tryGateway("getOperators");
+      const r = await gateway("getOperators");
       (result.queries as Record<string, unknown>).operators = {
-        httpStatus: operatorsResult.status,
-        ok: operatorsResult.ok,
-        data: operatorsResult.data,
-        raw: operatorsResult.raw.substring(0, 500),
+        httpStatus: r.status,
+        ok: r.ok,
+        data: r.data,
+        raw: r.raw.substring(0, 1000),
+      };
+    }
+
+    // 5. Balance — gateway getBalance (useful context for catalog)
+    if (action === "all" || action === "balance") {
+      const r = await gateway("getBalance");
+      (result.queries as Record<string, unknown>).balance = {
+        httpStatus: r.status,
+        ok: r.ok,
+        data: r.data,
+        raw: r.raw.substring(0, 200),
       };
     }
 
