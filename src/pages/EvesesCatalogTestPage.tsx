@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   Eye,
   EyeOff,
-  Search,
   Globe2,
   Wallet,
   Tag,
@@ -17,6 +16,7 @@ import {
   RotateCcw,
   ShieldCheck,
   TrendingUp,
+  Signal,
 } from "lucide-react";
 import { useLang } from "@/LanguageContext";
 
@@ -26,8 +26,6 @@ type QueryResult = {
   data: unknown;
   raw: string;
   queriedCountry?: string;
-  queriedCountries?: string[];
-  totalCountries?: number;
 };
 
 type CatalogResponse = {
@@ -36,8 +34,8 @@ type CatalogResponse = {
   detail?: string;
   queries?: {
     countries?: QueryResult;
-    products?: QueryResult;
     pricing?: QueryResult;
+    products?: QueryResult;
     summary?: QueryResult;
     balance?: QueryResult;
   };
@@ -46,8 +44,11 @@ type CatalogResponse = {
 type DurationOption = {
   price: number;
   delivery: number;
+  delivery_samples: number;
   count: number;
   is_voip: boolean;
+  refundable: boolean;
+  renewable: boolean;
 };
 
 type DurationEntry = {
@@ -56,10 +57,14 @@ type DurationEntry = {
   is_voip: boolean;
   options: DurationOption[];
   count: number;
+  refundable: boolean;
+  renewable: boolean;
 };
 
 type ServiceEntry = {
   name: string;
+  label: string;
+  geo_advisory: string | null;
   durations: DurationEntry[];
 };
 
@@ -70,58 +75,22 @@ type PricingData = {
   services: ServiceEntry[];
 };
 
-type RentalRow = {
-  country: string;
-  countryName: string;
-  service: string;
-  durationLabel: string;
-  durationMinutes: number;
-  price: number;
-  currency: string;
-  stock: number;
-  deliveryRate: number;
-  isVoip: boolean;
-  renewable: boolean;
-  refundable: boolean;
-};
-
 const COUNTRY_NAMES: Record<string, string> = {
-  us: "United States",
-  gb: "United Kingdom",
-  ca: "Canada",
-  au: "Australia",
-  de: "Germany",
-  fr: "France",
-  es: "Spain",
-  it: "Italy",
-  nl: "Netherlands",
-  ru: "Russia",
-  ua: "Ukraine",
-  pl: "Poland",
-  se: "Sweden",
-  fi: "Finland",
-  ro: "Romania",
-  id: "Indonesia",
-  ph: "Philippines",
-  br: "Brazil",
-  mx: "Mexico",
-  in: "India",
-  jp: "Japan",
-  kr: "South Korea",
-  za: "South Africa",
-  ar: "Argentina",
-  cl: "Chile",
-  co: "Colombia",
-  pe: "Peru",
-  th: "Thailand",
-  vn: "Vietnam",
-  tr: "Turkey",
-  eg: "Egypt",
-  ma: "Morocco",
-  ng: "Nigeria",
-  ke: "Kenya",
-  pk: "Pakistan",
-  bd: "Bangladesh",
+  us: "United States", gb: "United Kingdom", ca: "Canada", au: "Australia",
+  de: "Germany", fr: "France", es: "Spain", it: "Italy", nl: "Netherlands",
+  ru: "Russia", ua: "Ukraine", pl: "Poland", se: "Sweden", fi: "Finland",
+  ro: "Romania", id: "Indonesia", ph: "Philippines", br: "Brazil",
+  mx: "Mexico", in: "India", jp: "Japan", kr: "South Korea", za: "South Africa",
+  ar: "Argentina", cl: "Chile", co: "Colombia", pe: "Peru", th: "Thailand",
+  vn: "Vietnam", tr: "Turkey", eg: "Egypt", ma: "Morocco", ng: "Nigeria",
+  ke: "Kenya", pk: "Pakistan", bd: "Bangladesh", pt: "Portugal", gr: "Greece",
+  cz: "Czech Republic", hu: "Hungary", be: "Belgium", at: "Austria", ch: "Switzerland",
+  dk: "Denmark", no: "Norway", ie: "Ireland", nz: "New Zealand", sg: "Singapore",
+  my: "Malaysia", hk: "Hong Kong", tw: "Taiwan", sa: "Saudi Arabia", ae: "UAE",
+  il: "Israel", kz: "Kazakhstan", uz: "Uzbekistan", az: "Azerbaijan",
+  ge: "Georgia", am: "Armenia", by: "Belarus", lt: "Lithuania", lv: "Latvia",
+  ee: "Estonia", sk: "Slovakia", si: "Slovenia", hr: "Croatia", bg: "Bulgaria",
+  rs: "Serbia", mk: "North Macedonia", al: "Albania", ba: "Bosnia", me: "Montenegro",
 };
 
 const COUNTRY_FLAGS: Record<string, string> = {
@@ -131,13 +100,17 @@ const COUNTRY_FLAGS: Record<string, string> = {
   mx: "🇲🇽", in: "🇮🇳", jp: "🇯🇵", kr: "🇰🇷", za: "🇿🇦", ar: "🇦🇷",
   cl: "🇨🇱", co: "🇨🇴", pe: "🇵🇪", th: "🇹🇭", vn: "🇻🇳", tr: "🇹🇷",
   eg: "🇪🇬", ma: "🇲🇦", ng: "🇳🇬", ke: "🇰🇪", pk: "🇵🇰", bd: "🇧🇩",
+  pt: "🇵🇹", gr: "🇬🇷", cz: "🇨🇿", hu: "🇭🇺", be: "🇧🇪", at: "🇦🇹",
+  ch: "🇨🇭", dk: "🇩🇰", no: "🇳🇴", ie: "🇮🇪", nz: "🇳🇿", sg: "🇸🇬",
+  my: "🇲🇾", hk: "🇭🇰", tw: "🇹🇼", sa: "🇸🇦", ae: "🇦🇪", il: "🇮🇱",
 };
 
 function formatDuration(minutes: number): string {
   if (minutes >= 43200) return "30 days";
   if (minutes >= 20160) return "14 days";
   if (minutes >= 10080) return "7 days";
-  if (minutes >= 1440) return "24 hours";
+  if (minutes >= 4320) return "3 days";
+  if (minutes >= 1440) return "1 day";
   if (minutes >= 240) return "4 hours";
   if (minutes >= 60) return "1 hour";
   const h = Math.floor(minutes / 60);
@@ -157,96 +130,82 @@ function getCountryFlag(code: string): string {
 
 export function EvesesCatalogTestPage() {
   const { localizedPath } = useLang();
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<CatalogResponse | null>(null);
+  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingPricing, setLoadingPricing] = useState(false);
+  const [countriesResult, setCountriesResult] = useState<CatalogResponse | null>(null);
+  const [pricingResult, setPricingResult] = useState<CatalogResponse | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [showRaw, setShowRaw] = useState<Record<string, boolean>>({});
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const runQuery = async (action: string = "rental-catalog") => {
-    setLoading(true);
-    setResult(null);
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  const fetchCountries = useCallback(async () => {
+    setLoadingCountries(true);
+    setCountriesResult(null);
     try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/eveses-catalog?action=${action}`;
+      const url = `${supabaseUrl}/functions/v1/eveses-catalog?action=countries`;
       const res = await fetch(url, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json" },
       });
       const json = await res.json();
-      setResult(json as CatalogResponse);
+      setCountriesResult(json as CatalogResponse);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setResult({
-        success: false,
-        error: "Failed to call the Edge Function.",
-        detail: message,
-      });
+      setCountriesResult({ success: false, error: "Failed to fetch countries.", detail: message });
     } finally {
-      setLoading(false);
+      setLoadingCountries(false);
     }
-  };
+  }, [supabaseUrl, supabaseKey]);
 
-  const toggleRaw = (key: string) => {
-    setShowRaw((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // Parse pricing data into rental rows
-  const rentalRows = useMemo<RentalRow[]>(() => {
-    if (!result?.queries?.pricing?.data) return [];
-    const pricing = result.queries.pricing.data;
-    const rows: RentalRow[] = [];
-
-    // If pricing is from multiple countries, it's an object keyed by country code
-    if (typeof pricing === "object" && pricing !== null && !Array.isArray(pricing)) {
-      const pricingObj = pricing as Record<string, unknown>;
-
-      // Check if it's a multi-country response (object of country -> pricing data)
-      // or a single-country response (has "services" array)
-      if (Array.isArray(pricingObj.services)) {
-        // Single country response
-        const country = (pricingObj.country as string) || result.queries.pricing.queriedCountry || "";
-        rows.push(...parsePricingForCountry(country, pricingObj as unknown as PricingData));
-      } else {
-        // Multi-country response
-        for (const [countryCode, countryData] of Object.entries(pricingObj)) {
-          if (typeof countryData === "object" && countryData !== null && !Array.isArray(countryData)) {
-            const d = countryData as Record<string, unknown>;
-            if (Array.isArray(d.services)) {
-              rows.push(...parsePricingForCountry(countryCode, d as unknown as PricingData));
-            } else if (d.error) {
-              // Skip countries with errors
-            }
-          }
-        }
-      }
+  const fetchPricing = useCallback(async (country: string) => {
+    setLoadingPricing(true);
+    setPricingResult(null);
+    try {
+      const url = `${supabaseUrl}/functions/v1/eveses-catalog?action=pricing&country=${country}`;
+      const res = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json" },
+      });
+      const json = await res.json();
+      setPricingResult(json as CatalogResponse);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setPricingResult({ success: false, error: "Failed to fetch pricing.", detail: message });
+    } finally {
+      setLoadingPricing(false);
     }
+  }, [supabaseUrl, supabaseKey]);
 
-    return rows;
-  }, [result]);
+  const toggleRaw = (key: string) => setShowRaw((p) => ({ ...p, [key]: !p[key] }));
 
-  const filteredRows = useMemo(() => {
-    if (!searchTerm.trim()) return rentalRows;
-    const q = searchTerm.toLowerCase();
-    return rentalRows.filter(
-      (r) =>
-        r.country.toLowerCase().includes(q) ||
-        r.countryName.toLowerCase().includes(q) ||
-        r.durationLabel.toLowerCase().includes(q)
-    );
-  }, [rentalRows, searchTerm]);
-
-  // Group rows by country for card display
-  const groupedByCountry = useMemo(() => {
-    const map = new Map<string, RentalRow[]>();
-    for (const row of filteredRows) {
-      const existing = map.get(row.country) || [];
-      existing.push(row);
-      map.set(row.country, existing);
+  // Parse countries list
+  const countriesList = useMemo<string[]>(() => {
+    if (!countriesResult?.queries?.countries?.data) return [];
+    const d = countriesResult.queries.countries.data;
+    if (typeof d === "object" && d !== null && !Array.isArray(d)) {
+      const obj = d as Record<string, unknown>;
+      if (Array.isArray(obj.countries)) return obj.countries as string[];
     }
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [filteredRows]);
+    return [];
+  }, [countriesResult]);
+
+  // Parse pricing data for anyother service
+  const pricingData = useMemo<PricingData | null>(() => {
+    if (!pricingResult?.queries?.pricing?.data) return null;
+    const d = pricingResult.queries.pricing.data;
+    if (typeof d === "object" && d !== null && !Array.isArray(d)) {
+      return d as PricingData;
+    }
+    return null;
+  }, [pricingResult]);
+
+  const anyotherService = useMemo<ServiceEntry | null>(() => {
+    if (!pricingData?.services) return null;
+    const found = pricingData.services.find((s) => s.name === "anyother");
+    return found || null;
+  }, [pricingData]);
 
   const renderQueryCard = (
     key: string,
@@ -280,9 +239,6 @@ export function EvesesCatalogTestPage() {
               {query.queriedCountry && (
                 <span className="ml-1.5 text-[10px] text-zinc-500">country={query.queriedCountry}</span>
               )}
-              {query.totalCountries != null && (
-                <span className="ml-1.5 text-[10px] text-zinc-500">{query.totalCountries} countries</span>
-              )}
             </div>
           </div>
           <button
@@ -310,7 +266,7 @@ export function EvesesCatalogTestPage() {
           )}
 
           {showRaw[key] && (
-            <pre className="mt-2 max-h-80 overflow-auto rounded-lg border border-zinc-800 bg-zinc-950/80 p-3 text-[11px] font-mono text-zinc-300 whitespace-pre-wrap break-all">
+            <pre className="mt-2 max-h-96 overflow-auto rounded-lg border border-zinc-800 bg-zinc-950/80 p-3 text-[11px] font-mono text-zinc-300 whitespace-pre-wrap break-all">
               {JSON.stringify(query.data, null, 2)}
             </pre>
           )}
@@ -347,236 +303,259 @@ export function EvesesCatalogTestPage() {
           </p>
         </div>
 
+        {/* Step 1: Load countries */}
         <div className="mb-6 flex flex-col items-center gap-3">
           <button
-            onClick={() => runQuery("rental-catalog")}
-            disabled={loading}
+            onClick={fetchCountries}
+            disabled={loadingCountries}
             className="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 px-7 py-3.5 text-sm font-bold text-zinc-950 shadow-xl shadow-amber-500/10 transition-all hover:from-amber-400 hover:to-yellow-400 disabled:opacity-60 active:scale-[0.98]"
           >
-            {loading ? (
+            {loadingCountries ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Consultando catálogo de alquiler...
+                Cargando países...
               </>
             ) : (
               <>
-                <Server className="h-5 w-5" />
-                Consultar catálogo completo
+                <Globe2 className="h-5 w-5" />
+                {countriesList.length > 0 ? "Recargar países" : "Cargar países disponibles"}
               </>
             )}
           </button>
         </div>
 
-        {result && !result.success && (
+        {/* Countries result */}
+        {countriesResult && !countriesResult.success && (
           <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-5">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/20 text-red-400">
               <XCircle className="h-6 w-6" />
             </div>
             <div>
               <h3 className="text-base font-bold text-red-400">Error</h3>
-              <p className="mt-0.5 text-sm text-zinc-300">{result.error}</p>
-              {result.detail && (
-                <p className="mt-1 text-xs text-zinc-500 font-mono">{result.detail}</p>
-              )}
+              <p className="mt-0.5 text-sm text-zinc-300">{countriesResult.error}</p>
             </div>
           </div>
         )}
 
-        {result?.queries && (
-          <div className="space-y-4">
-            {/* Info cards */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {renderQueryCard("countries", "Países (mode=rent)", Globe2, result.queries.countries)}
-              {renderQueryCard("products", "Productos (mode=rent)", Tag, result.queries.products)}
-              {renderQueryCard("balance", "Wallet", Wallet, result.queries.balance)}
+        {countriesResult?.queries?.countries && (
+          <div className="mb-6 space-y-4">
+            {renderQueryCard("countries", "Países (mode=rent)", Globe2, countriesResult.queries.countries)}
+          </div>
+        )}
+
+        {/* Step 2: Country selector */}
+        {countriesList.length > 0 && (
+          <div className="mb-6">
+            <label className="mb-2 block text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              Selecciona un país
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {countriesList.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => {
+                    setSelectedCountry(c);
+                    fetchPricing(c);
+                  }}
+                  disabled={loadingPricing}
+                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-semibold transition-all disabled:opacity-50 ${
+                    selectedCountry === c
+                      ? "border-amber-500/60 bg-amber-500/10 text-amber-400"
+                      : "border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-800/40"
+                  }`}
+                >
+                  <span className="text-base">{getCountryFlag(c)}</span>
+                  <span>{getCountryName(c)}</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">{c}</span>
+                </button>
+              ))}
             </div>
+          </div>
+        )}
 
-            {/* Summary card */}
-            {renderQueryCard("summary", "Resumen por país (mode=rent)", TrendingUp, result.queries.summary)}
+        {/* Step 3: Pricing results */}
+        {loadingPricing && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
+            <span className="ml-2 text-sm text-zinc-400">Consultando precios para {selectedCountry}...</span>
+          </div>
+        )}
 
-            {/* Raw pricing card */}
-            {renderQueryCard("pricing", "Pricing API (mode=rent, service=anyother)", Server, result.queries.pricing)}
+        {pricingResult && !pricingResult.success && (
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/20 text-red-400">
+              <XCircle className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-red-400">Error</h3>
+              <p className="mt-0.5 text-sm text-zinc-300">{pricingResult.error}</p>
+            </div>
+          </div>
+        )}
 
-            {/* Parsed rental catalog */}
-            {rentalRows.length > 0 && (
+        {pricingResult?.queries?.pricing && (
+          <div className="space-y-4">
+            {/* Raw pricing API response */}
+            {renderQueryCard("pricing", `Pricing API (mode=rent, service=anyother, country=${selectedCountry})`, Server, pricingResult.queries.pricing)}
+
+            {/* Parsed catalog */}
+            {anyotherService ? (
               <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
-                <div className="flex items-center justify-between border-b border-zinc-800/60 px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
-                      <Boxes className="h-4 w-4" />
-                    </div>
+                <div className="flex items-center gap-2.5 border-b border-zinc-800/60 px-4 py-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+                    <Boxes className="h-4 w-4" />
+                  </div>
+                  <div>
                     <span className="text-sm font-bold text-white">
-                      Catálogo parseado — {rentalRows.length} ofertas en {groupedByCountry.length} países
+                      {getCountryFlag(selectedCountry)} {getCountryName(selectedCountry)}
+                    </span>
+                    <span className="ml-2 text-xs text-zinc-500">
+                      {anyotherService.label} · {anyotherService.durations.length} duraciones
                     </span>
                   </div>
                 </div>
 
-                <div className="p-4">
-                  {/* Search */}
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Filtrar por país o duración..."
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 py-2.5 pl-10 pr-4 text-sm text-white placeholder-zinc-500 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                    />
-                  </div>
-
-                  {/* Country cards */}
-                  <div className="space-y-4">
-                    {groupedByCountry.map(([country, rows]) => (
-                      <div
-                        key={country}
-                        className="rounded-xl border border-zinc-800/60 bg-zinc-950/40 overflow-hidden"
-                      >
-                        {/* Country header */}
-                        <div className="flex items-center gap-3 border-b border-zinc-800/40 px-4 py-3">
-                          <span className="text-2xl">{getCountryFlag(country)}</span>
-                          <div>
-                            <div className="text-sm font-bold text-white">{getCountryName(country)}</div>
-                            <div className="text-[11px] text-zinc-500 font-mono">
-                              {country} · {rows.length} duraciones disponibles
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Duration rows */}
-                        <div className="divide-y divide-zinc-800/30">
-                          {rows.map((row, i) => (
-                            <div
-                              key={`${country}-${row.durationMinutes}-${i}`}
-                              className="grid grid-cols-2 gap-2 px-4 py-3 sm:grid-cols-4 lg:grid-cols-6"
-                            >
-                              {/* Duration */}
-                              <div className="flex items-center gap-1.5">
-                                <Clock className="h-3.5 w-3.5 text-zinc-500" />
-                                <span className="text-xs font-semibold text-white">
-                                  {row.durationLabel}
-                                </span>
-                              </div>
-
-                              {/* Price */}
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs font-mono font-bold text-amber-400">
-                                  ${(row.price / 100).toFixed(2)}
-                                </span>
-                                <span className="text-[10px] text-zinc-500">{row.currency}</span>
-                              </div>
-
-                              {/* Stock */}
-                              <div className="flex items-center gap-1">
-                                <span className="text-[10px] text-zinc-500">Stock:</span>
-                                <span
-                                  className={`text-xs font-mono font-semibold ${
-                                    row.stock > 0 ? "text-emerald-400" : "text-red-400"
-                                  }`}
-                                >
-                                  {row.stock > 0 ? row.stock : "—"}
-                                </span>
-                              </div>
-
-                              {/* Delivery rate */}
-                              <div className="flex items-center gap-1">
-                                <TrendingUp className="h-3 w-3 text-zinc-500" />
-                                <span className="text-xs font-mono text-zinc-300">
-                                  {(row.deliveryRate * 100).toFixed(0)}%
-                                </span>
-                              </div>
-
-                              {/* Renewable */}
-                              <div className="flex items-center gap-1">
-                                <RotateCcw className="h-3 w-3 text-emerald-400" />
-                                <span className="text-[10px] text-emerald-400">Renovable</span>
-                              </div>
-
-                              {/* Refundable (based on cancel endpoint availability) */}
-                              <div className="flex items-center gap-1">
-                                <ShieldCheck className="h-3 w-3 text-zinc-500" />
-                                <span className="text-[10px] text-zinc-400">
-                                  Cancel: sí
-                                </span>
-                              </div>
-
-                              {/* VoIP badge */}
-                              {row.isVoip && (
-                                <div className="col-span-2 sm:col-span-4 lg:col-span-6">
-                                  <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] font-semibold text-zinc-400">
-                                    VoIP
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                <div className="divide-y divide-zinc-800/40">
+                  {anyotherService.durations.map((dur) => (
+                    <div key={dur.duration} className="px-4 py-4">
+                      {/* Duration header */}
+                      <div className="mb-3 flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-amber-400" />
+                        <span className="text-sm font-bold text-white">
+                          {formatDuration(dur.duration)}
+                        </span>
+                        <span className="text-[10px] text-zinc-500 font-mono">({dur.duration} min)</span>
+                        <span className="ml-auto text-xs text-zinc-400">
+                          Stock total: <span className="font-mono font-semibold text-emerald-400">{dur.count}</span>
+                        </span>
                       </div>
-                    ))}
-                  </div>
+
+                      {/* Options table */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-zinc-800/60 text-left text-zinc-500">
+                              <th className="py-1.5 pr-3 font-medium">Precio</th>
+                              <th className="py-1.5 pr-3 font-medium">Stock</th>
+                              <th className="py-1.5 pr-3 font-medium">Delivery</th>
+                              <th className="py-1.5 pr-3 font-medium">Renovable</th>
+                              <th className="py-1.5 pr-3 font-medium">Refundable</th>
+                              <th className="py-1.5 font-medium">VoIP</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dur.options.map((opt, i) => (
+                              <tr key={i} className="border-b border-zinc-800/20 last:border-0">
+                                <td className="py-2 pr-3 font-mono font-bold text-amber-400">
+                                  ${(opt.price / 100).toFixed(2)}
+                                  <span className="ml-1 text-[9px] text-zinc-500">{pricingData?.currency || "USD"}</span>
+                                </td>
+                                <td className="py-2 pr-3 font-mono text-emerald-400 font-semibold">
+                                  {opt.count}
+                                </td>
+                                <td className="py-2 pr-3 font-mono text-zinc-300">
+                                  {(opt.delivery * 100).toFixed(0)}%
+                                  {opt.delivery_samples > 0 && (
+                                    <span className="ml-1 text-[9px] text-zinc-500">({opt.delivery_samples} samples)</span>
+                                  )}
+                                </td>
+                                <td className="py-2 pr-3">
+                                  {opt.renewable ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-400">
+                                      <RotateCcw className="h-3 w-3" />
+                                      <span className="text-[10px]">Sí</span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-zinc-500">No</span>
+                                  )}
+                                </td>
+                                <td className="py-2 pr-3">
+                                  {opt.refundable ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-400">
+                                      <ShieldCheck className="h-3 w-3" />
+                                      <span className="text-[10px]">Sí</span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-zinc-500">No</span>
+                                  )}
+                                </td>
+                                <td className="py-2">
+                                  {opt.is_voip ? (
+                                    <span className="inline-flex items-center gap-1 text-zinc-400">
+                                      <Signal className="h-3 w-3" />
+                                      <span className="text-[10px]">VoIP</span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-emerald-400">Real SIM</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
-
-            {/* No results banner */}
-            {result.queries.pricing && rentalRows.length === 0 && (
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
-                  <div>
-                    <h3 className="text-sm font-bold text-white">
-                      No se parsearon ofertas de rental con service=anyother
-                    </h3>
-                    <p className="mt-1 text-xs text-zinc-400">
-                      Revisa el JSON crudo de la sección "Pricing API" arriba.
-                      Es posible que el servicio "anyother" no esté disponible en modo rent
-                      para los países consultados, o que el formato de respuesta sea diferente.
-                    </p>
+            ) : (
+              pricingData && (
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
+                    <div>
+                      <h3 className="text-sm font-bold text-amber-400">
+                        service=anyother no disponible para {getCountryName(selectedCountry)}
+                      </h3>
+                      <p className="mt-1 text-xs text-zinc-400">
+                        La API devolvió {pricingData.services.length} servicios, pero ninguno es
+                        "anyother". Revisa el JSON crudo arriba para ver qué servicios están
+                        disponibles para este país.
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {pricingData.services.slice(0, 15).map((s) => (
+                          <span key={s.name} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-mono text-zinc-400">
+                            {s.name}
+                          </span>
+                        ))}
+                        {pricingData.services.length > 15 && (
+                          <span className="text-[10px] text-zinc-500">
+                            +{pricingData.services.length - 15} más...
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             )}
 
-            {/* API reference info */}
+            {/* API reference */}
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
-              <h3 className="text-sm font-bold text-white mb-3">Endpoints nativos usados</h3>
-              <div className="space-y-2 text-xs text-zinc-400">
-                <div className="flex items-start gap-2">
-                  <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-emerald-400 text-[10px]">GET</code>
-                  <code className="text-zinc-300">/api/v1/numbers/countries?mode=rent</code>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-emerald-400 text-[10px]">GET</code>
-                  <code className="text-zinc-300">/api/v1/numbers/products?mode=rent</code>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-emerald-400 text-[10px]">GET</code>
-                  <code className="text-zinc-300">/api/v1/numbers/pricing?mode=rent&country={"{iso2}"}&service=anyother</code>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-emerald-400 text-[10px]">GET</code>
-                  <code className="text-zinc-300">/api/v1/numbers/summary?mode=rent</code>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-emerald-400 text-[10px]">GET</code>
-                  <code className="text-zinc-300">/api/v1/wallet</code>
-                </div>
+              <h3 className="text-sm font-bold text-white mb-3">Endpoint usado</h3>
+              <div className="flex items-start gap-2 text-xs">
+                <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-emerald-400 text-[10px]">GET</code>
+                <code className="text-zinc-300 break-all">
+                  /api/v1/numbers/pricing?mode=rent&country={selectedCountry || "{iso2}"}&service=anyother
+                </code>
               </div>
               <div className="mt-3 pt-3 border-t border-zinc-800/60 text-xs text-zinc-500">
-                <p>Autenticación: Bearer token (API key en servidor, nunca en navegador).</p>
-                <p className="mt-1">
-                  La compra usará <code className="text-zinc-400">POST /api/v1/numbers/orders</code> con
-                  {" "}<code className="text-zinc-400">mode=rent</code>,{" "}
-                  <code className="text-zinc-400">service=anyother</code>,
-                  {" "}<code className="text-zinc-400">country</code> y{" "}
-                  <code className="text-zinc-400">duration_minutes</code>.
-                </p>
-                <p className="mt-1">
-                  Auto-renew: <code className="text-zinc-400">POST /api/v1/numbers/orders/{"{uuid}"}/auto-renew</code>.
-                  {" "}Extender: <code className="text-zinc-400">POST .../{"{uuid}"}/extend</code>.
-                  {" "}Cancelar: <code className="text-zinc-400">POST .../{"{uuid}"}/cancel</code>.
-                </p>
+                <p>Auth: Bearer token (servidor). La compra usará POST /api/v1/numbers/orders con mode=rent, service=anyother, country y duration_minutes.</p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Initial empty state */}
+        {!countriesResult && !loadingCountries && (
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 text-center">
+            <Globe2 className="mx-auto h-10 w-10 text-zinc-600 mb-3" />
+            <p className="text-sm text-zinc-400">
+              Pulsa "Cargar países disponibles" para empezar.
+            </p>
+            <p className="mt-1 text-xs text-zinc-600">
+              Primero se obtienen los países con mode=rent, luego se consulta el pricing de cada país individualmente.
+            </p>
           </div>
         )}
 
@@ -588,40 +567,4 @@ export function EvesesCatalogTestPage() {
       </div>
     </div>
   );
-}
-
-// Helper: parse a single country's pricing data into rental rows
-function parsePricingForCountry(country: string, data: PricingData): RentalRow[] {
-  const rows: RentalRow[] = [];
-  if (!data.services || !Array.isArray(data.services)) return rows;
-
-  const currency = data.currency || "USD";
-
-  for (const service of data.services) {
-    // We only care about "anyother" service
-    if (service.name !== "anyother") continue;
-
-    for (const dur of service.durations || []) {
-      const cheapestOption = dur.options && dur.options.length > 0
-        ? dur.options.reduce((min, opt) => opt.price < min.price ? opt : min, dur.options[0])
-        : { delivery: 0, count: 0, is_voip: dur.is_voip };
-
-      rows.push({
-        country,
-        countryName: getCountryName(country),
-        service: service.name,
-        durationLabel: formatDuration(dur.duration),
-        durationMinutes: dur.duration,
-        price: dur.price,
-        currency,
-        stock: dur.count || cheapestOption.count || 0,
-        deliveryRate: cheapestOption.delivery || 0,
-        isVoip: dur.is_voip || cheapestOption.is_voip || false,
-        renewable: true, // rentals support auto-renew per API docs
-        refundable: true, // cancel endpoint refunds where provider supports it
-      });
-    }
-  }
-
-  return rows;
 }
